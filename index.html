@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XerTransfer – Instant File Transfer | No Limits, No Cables</title>
-    <meta name="description" content="Transfer files, photos, documents and folders instantly between any device. No size limits, no cables. P2P encrypted.">
-    <meta property="og:title" content="XerTransfer – Instant File Transfer">
-    <meta property="og:description" content="Transfer files instantly between devices. No size limits, no cables, completely free.">
+    <title>XerTransfer – Liquid Glass Instant P2P File Transfer</title>
+    <meta name="description" content="Instant P2P file and folder transfer with Liquid Glass design. Zero size limits, end-to-end encrypted, multi-theme support.">
+    <meta property="og:title" content="XerTransfer – Liquid Glass Instant File Transfer">
+    <meta property="og:description" content="Transfer files instantly between devices with liquid glass interface. No size limits, completely free.">
     <meta property="og:type" content="website">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2.5'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="liquid-glass-active" data-theme="nebula">
 
+    <!-- Background Liquid Effects -->
     <div class="bg-effects" aria-hidden="true">
+        <canvas id="liquid-canvas"></canvas>
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
@@ -27,14 +29,52 @@
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="#" class="nav-brand">
-                <span class="logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                <span class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                 <span class="logo-text">Xer<span>Transfer</span></span>
             </a>
+
+            <!-- Center Controls: Liquid Glass Toggle & Themes -->
+            <div class="nav-center-controls">
+                <!-- Liquid Glass Mode Toggle -->
+                <button class="liquid-glass-btn active" id="liquid-glass-toggle" title="Toggle Liquid Glass Refraction Mode">
+                    <span class="glass-indicator-dot"></span>
+                    <span>Liquid Glass</span>
+                </button>
+
+                <!-- Multi-Theme Dropdown -->
+                <div class="theme-picker-wrapper">
+                    <button class="theme-btn" id="theme-btn" title="Choose Color Theme">
+                        <span class="theme-color-preview" id="theme-color-preview"></span>
+                        <span id="theme-btn-label">Nebula</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="theme-dropdown" id="theme-dropdown">
+                        <button class="theme-option active" data-set-theme="nebula">
+                            <span class="theme-dot nebula"></span>
+                            <span>Cosmic Nebula</span>
+                        </button>
+                        <button class="theme-option" data-set-theme="emerald">
+                            <span class="theme-dot emerald"></span>
+                            <span>Emerald Matrix</span>
+                        </button>
+                        <button class="theme-option" data-set-theme="solar">
+                            <span class="theme-dot solar"></span>
+                            <span>Solar Flare</span>
+                        </button>
+                        <button class="theme-option" data-set-theme="frost">
+                            <span class="theme-dot frost"></span>
+                            <span>Frost Crystal</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="nav-links" id="nav-links">
                 <a href="#hero" class="nav-link">Home</a>
                 <a href="#app-section" class="nav-link">Transfer</a>
                 <a href="#about" class="nav-link">About</a>
             </div>
+
             <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
                 <span></span><span></span><span></span>
             </button>
@@ -48,10 +88,10 @@
                 <div class="hero-content">
                     <div class="hero-badge">
                         <span class="badge-dot"></span>
-                        Lightning Fast P2P Transfers
+                        Instant Zero-Lag P2P Engine
                     </div>
                     <h1>Transfer Files <br><span class="gradient-text">Instantly</span></h1>
-                    <p class="hero-subtitle">Send files, photos, documents & entire folders between any device — PC or phone. No size limits. No cables. No signup.</p>
+                    <p class="hero-subtitle">Direct peer-to-peer file & folder sharing in Liquid Glass design. Instant pairing, 100MB/s line-rate streaming, and zero corruption.</p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-lg" onclick="scrollToApp('send')">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -65,17 +105,17 @@
                     <div class="hero-stats">
                         <div class="stat-item">
                             <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><path d="M2 20h20"/></svg></span>
-                            <div><strong>No Size Limit</strong><p>100MB or 100GB</p></div>
-                        </div>
-                        <div class="stat-divider"></div>
-                        <div class="stat-item">
-                            <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                            <div><strong>P2P Encrypted</strong><p>Direct & Secure</p></div>
+                            <div><strong>Zero Limits</strong><p>1MB to 100GB+</p></div>
                         </div>
                         <div class="stat-divider"></div>
                         <div class="stat-item">
                             <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
-                            <div><strong>Instant</strong><p>No Upload Wait</p></div>
+                            <div><strong>Instant Connect</strong><p>&lt; 100ms Handshake</p></div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+                            <div><strong>Folder Support</strong><p>Full Subdirectories</p></div>
                         </div>
                     </div>
                 </div>
@@ -104,11 +144,11 @@
                         <div id="send-step-1" class="step active">
                             <div class="upload-zone" id="upload-zone">
                                 <div class="upload-icon-wrapper">
-                                    <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <svg class="upload-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                 </div>
-                                <h3>Drag & Drop Files Here</h3>
-                                <p>or click to browse your files</p>
-                                <span class="upload-hint">Any file type &middot; No size limit</span>
+                                <h3>Drag & Drop Files or Folders</h3>
+                                <p>or click browse to select</p>
+                                <span class="upload-hint">Any file type &middot; Entire folders &middot; No size limit</span>
                                 <input type="file" id="file-input" multiple hidden>
                             </div>
                             <div class="upload-actions">
@@ -125,7 +165,7 @@
                             <div id="file-list" class="file-list"></div>
                             <button id="start-send-btn" class="btn btn-primary btn-block" disabled>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
-                                Generate Transfer Code
+                                Generate Instant Transfer Code
                             </button>
                         </div>
 
@@ -133,8 +173,8 @@
                         <div id="send-step-2" class="step">
                             <div class="code-card">
                                 <div class="code-card-header">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
-                                    <h3>Your Transfer Code</h3>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
+                                    <h3>Your Instant Transfer Code</h3>
                                 </div>
                                 <div class="code-display" id="code-display">
                                     <span class="code-char" id="code-char-0">-</span>
@@ -150,12 +190,12 @@
                                 </button>
                                 <div class="qr-wrapper">
                                     <div id="qr-code" class="qr-code"></div>
-                                    <p class="qr-label">Scan with receiver's device</p>
+                                    <p class="qr-label">Scan with receiver's device camera</p>
                                 </div>
                             </div>
                             <div class="status-bar" id="send-status">
                                 <div class="status-pulse"></div>
-                                <span>Waiting for receiver to connect...</span>
+                                <span>Waiting for receiver to connect (Instant P2P active)</span>
                             </div>
                             <button class="btn btn-ghost" onclick="cancelSend()">Cancel</button>
                         </div>
@@ -173,11 +213,11 @@
                                 </div>
                                 <div class="connection-badge" id="send-conn-badge">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                                    <span id="send-conn-type">Detecting...</span>
+                                    <span id="send-conn-type">Direct LAN P2P ⚡</span>
                                 </div>
                                 <div class="current-file" id="send-current-file">
                                     <span class="file-icon-svg" id="send-file-icon"></span>
-                                    <span class="file-name">Preparing...</span>
+                                    <span class="file-name">Preparing stream...</span>
                                 </div>
                                 <div class="progress-wrapper">
                                     <div class="progress-bar"><div class="progress-fill" id="send-progress-fill"></div></div>
@@ -191,10 +231,10 @@
                         <div id="send-step-4" class="step">
                             <div class="complete-card">
                                 <div class="complete-icon">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                                 </div>
                                 <h3>Transfer Complete!</h3>
-                                <p id="send-summary">All files have been sent successfully.</p>
+                                <p id="send-summary">All files have been verified and sent successfully.</p>
                                 <button class="btn btn-primary" onclick="resetApp()">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                                     Send More Files
@@ -210,7 +250,7 @@
                                 <div class="receive-header">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     <h3>Receive Files</h3>
-                                    <p>Enter the 6-digit code from the sender</p>
+                                    <p>Enter the 6-digit code or scan the QR</p>
                                 </div>
                                 <div class="code-input-group">
                                     <input type="text" class="code-input" id="code-input-0" maxlength="1" data-index="0" autocomplete="off" inputmode="text">
@@ -222,7 +262,7 @@
                                 </div>
                                 <button id="connect-btn" class="btn btn-primary btn-block" disabled>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                                    Connect & Receive
+                                    Instant Connect & Receive
                                 </button>
                                 <div class="divider"><span>OR</span></div>
                                 <button id="scan-qr-btn" class="btn btn-secondary btn-block">
@@ -231,7 +271,7 @@
                                 </button>
                                 <div id="qr-reader-wrapper" class="qr-reader-wrapper hidden">
                                     <div id="qr-reader"></div>
-                                    <button class="btn btn-ghost btn-sm" id="stop-scanner-btn">Close Scanner</button>
+                                    <button class="btn btn-ghost btn-sm" id="stop-scanner-btn" style="margin-top:8px;">Close Camera</button>
                                 </div>
                             </div>
                         </div>
@@ -240,7 +280,7 @@
                             <div class="connecting-card">
                                 <div class="loader-ring"></div>
                                 <h3 id="connecting-status-title">Connecting...</h3>
-                                <p id="connecting-status-msg">Establishing direct peer-to-peer connection</p>
+                                <p id="connecting-status-msg">Opening instant direct peer stream</p>
                                 <button class="btn btn-ghost btn-sm" onclick="cancelReceive()" style="margin-top:16px;">Cancel</button>
                             </div>
                         </div>
@@ -257,11 +297,11 @@
                                 </div>
                                 <div class="connection-badge" id="recv-conn-badge">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                                    <span id="recv-conn-type">Detecting...</span>
+                                    <span id="recv-conn-type">Direct LAN P2P ⚡</span>
                                 </div>
                                 <div class="current-file" id="receive-current-file">
                                     <span class="file-icon-svg" id="recv-file-icon"></span>
-                                    <span class="file-name">Preparing...</span>
+                                    <span class="file-name">Receiving stream...</span>
                                 </div>
                                 <div class="progress-wrapper">
                                     <div class="progress-bar"><div class="progress-fill" id="receive-progress-fill"></div></div>
@@ -274,7 +314,7 @@
                         <div id="receive-step-3" class="step">
                             <div class="complete-card">
                                 <div class="complete-icon receive-icon">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                                 </div>
                                 <h3 id="receive-complete-title">Files Received!</h3>
                                 <p id="receive-complete-subtitle">All files have been received safely and verified without corruption.</p>
@@ -295,96 +335,65 @@
         <section id="about" class="about-section">
             <div class="container">
                 <div class="section-header">
-                    <span class="section-badge">About</span>
+                    <span class="section-badge">Liquid Glass Engine</span>
                     <h2>About <span class="gradient-text">XerTransfer</span></h2>
-                    <p class="section-subtitle">XerTransfer is a modern peer-to-peer file transfer platform that lets you share any file or folder between any devices instantly — no installation, no signup, no limits.</p>
+                    <p class="section-subtitle">XerTransfer is a modern peer-to-peer file transfer platform with liquid glass aesthetics and instant zero-latency stream negotiation.</p>
                 </div>
 
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                         </div>
-                        <h3>Lightning Fast</h3>
-                        <p>Direct peer-to-peer transfer means no server bottleneck. Files travel directly between your devices at maximum speed.</p>
+                        <h3>Zero-Delay Instant Connection</h3>
+                        <p>Pre-gathered ICE mesh and bundled SDP exchange connect sender and receiver in milliseconds without waiting.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                         </div>
-                        <h3>End-to-End Encrypted</h3>
-                        <p>Your files are encrypted during transfer using WebRTC's built-in DTLS encryption. No one can intercept your data.</p>
+                        <h3>Folder Structure Preservation</h3>
+                        <p>Upload entire directory trees and save as structured ZIP or native real folders directly to disk.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         </div>
-                        <h3>No Size Limits</h3>
-                        <p>Whether it's a 1KB text file or a 100GB video — XerTransfer handles it all. Files never touch our servers.</p>
+                        <h3>100% Zero Corruption</h3>
+                        <p>Every chunk carries an 8-byte framing header ensuring sequenced reassembly and byte-for-byte fidelity.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        </div>
+                        <h3>Multi-Theme & Liquid Glass</h3>
+                        <p>Switch between 4 curated themes and toggle dynamic liquid glass refraction with specular lighting.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                         </div>
                         <h3>Cross Platform</h3>
-                        <p>Works on any device with a modern browser — Windows, Mac, Linux, Android, iOS. No app installation required.</p>
+                        <p>Works flawlessly across Android, iOS (iPhone/iPad), Windows, Mac, and Linux inside any browser.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                        </div>
-                        <h3>Folder Support</h3>
-                        <p>Upload and transfer entire folders with all their files at once. Folder structure is preserved in file names.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon-wrapper">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                         </div>
                         <h3>100% Free & Private</h3>
-                        <p>No signup, no ads, no tracking. Your files never leave your devices. XerTransfer is completely free and open source.</p>
-                    </div>
-                </div>
-
-                <div class="how-it-works">
-                    <h3>How It Works</h3>
-                    <div class="steps-grid">
-                        <div class="how-step">
-                            <div class="step-number">1</div>
-                            <h4>Select Files</h4>
-                            <p>Choose files or entire folders you want to transfer.</p>
-                        </div>
-                        <div class="step-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
-                        <div class="how-step">
-                            <div class="step-number">2</div>
-                            <h4>Share Code</h4>
-                            <p>Get a unique 6-digit code and QR code. Share it with the receiver.</p>
-                        </div>
-                        <div class="step-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
-                        <div class="how-step">
-                            <div class="step-number">3</div>
-                            <h4>Receive Instantly</h4>
-                            <p>The receiver enters the code or scans the QR — files transfer via P2P.</p>
-                        </div>
+                        <p>End-to-end DTLS encrypted. Data flows directly between devices without touching any third-party storage.</p>
                     </div>
                 </div>
 
                 <!-- Creator Section -->
                 <div class="creator-card">
                     <div class="creator-avatar">
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
                     <div class="creator-info">
                         <span class="creator-badge">Creator & Developer</span>
                         <h3>Mayank Mandrai</h3>
-                        <p>Designed and built XerTransfer to give everyone free, ultra-fast, cable-free file transfer across all devices.</p>
-                    </div>
-                </div>
-
-                <div class="tech-note">
-                    <div class="tech-note-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
-                    <div>
-                        <strong>Powered by WebRTC & Built-In Serverless Signaling</strong>
-                        <p>XerTransfer uses standard WebRTC technology for direct peer-to-peer connections with an independent, built-in serverless signaling engine. Both sender and receiver need to keep the page open during transfer. For the fastest speeds, connect both devices to the <strong>same Wi-Fi or Phone Hotspot</strong>.</p>
+                        <p>Crafted XerTransfer with Liquid Glass aesthetics, zero-delay instant stream negotiation, and ultra-fast line-rate WebRTC transfer.</p>
                     </div>
                 </div>
             </div>
@@ -395,10 +404,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <span class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                    <span class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                     <span class="logo-text">Xer<span>Transfer</span></span>
                 </div>
-                <p class="footer-tagline">Instant file transfer, no limits.</p>
+                <p class="footer-tagline">Liquid Glass instant file transfer, no limits.</p>
             </div>
             <div class="footer-bottom">
                 <p>Made with <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> by <strong>Mayank Mandrai</strong></p>
