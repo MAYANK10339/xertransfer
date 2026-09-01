@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XerTransfer – Instant File Transfer | No Limits, No Cables</title>
+    <meta name="description" content="Transfer files, photos, documents and folders instantly between any device. No size limits, no cables. P2P encrypted.">
+    <meta property="og:title" content="XerTransfer – Instant File Transfer">
+    <meta property="og:description" content="Transfer files instantly between devices. No size limits, no cables, completely free.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2'><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="bg-effects" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">
+                <span class="logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                <span class="logo-text">Xer<span>Transfer</span></span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="#hero" class="nav-link">Home</a>
+                <a href="#app-section" class="nav-link">Transfer</a>
+                <a href="#about" class="nav-link">About</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero -->
+        <section id="hero" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        Lightning Fast P2P Transfers
+                    </div>
+                    <h1>Transfer Files <br><span class="gradient-text">Instantly</span></h1>
+                    <p class="hero-subtitle">Send files, photos, documents & entire folders between any device — PC or phone. No size limits. No cables. No signup.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-lg" onclick="scrollToApp('send')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Send Files
+                        </button>
+                        <button class="btn btn-secondary btn-lg" onclick="scrollToApp('receive')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Receive Files
+                        </button>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><path d="M2 20h20"/></svg></span>
+                            <div><strong>No Size Limit</strong><p>100MB or 100GB</p></div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                            <div><strong>P2P Encrypted</strong><p>Direct & Secure</p></div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                            <div><strong>Instant</strong><p>No Upload Wait</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Section -->
+        <section id="app-section" class="app-section">
+            <div class="container">
+                <div class="app-card">
+                    <div class="mode-tabs">
+                        <button class="tab active" data-mode="send" id="tab-send">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Send
+                        </button>
+                        <button class="tab" data-mode="receive" id="tab-receive">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Receive
+                        </button>
+                        <div class="tab-indicator"></div>
+                    </div>
+
+                    <!-- SEND PANEL -->
+                    <div id="send-panel" class="panel active">
+                        <!-- Step 1: Upload -->
+                        <div id="send-step-1" class="step active">
+                            <div class="upload-zone" id="upload-zone">
+                                <div class="upload-icon-wrapper">
+                                    <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                </div>
+                                <h3>Drag & Drop Files Here</h3>
+                                <p>or click to browse your files</p>
+                                <span class="upload-hint">Any file type &middot; No size limit</span>
+                                <input type="file" id="file-input" multiple hidden>
+                            </div>
+                            <div class="upload-actions">
+                                <label for="file-input" class="btn btn-secondary btn-sm" style="cursor:pointer;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
+                                    Add Files
+                                </label>
+                                <label for="folder-input" class="btn btn-secondary btn-sm" id="folder-upload-btn" style="cursor:pointer;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                    Upload Folder
+                                </label>
+                                <input type="file" id="folder-input" webkitdirectory directory multiple hidden>
+                            </div>
+                            <div id="file-list" class="file-list"></div>
+                            <button id="start-send-btn" class="btn btn-primary btn-block" disabled>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
+                                Generate Transfer Code
+                            </button>
+                        </div>
+
+                        <!-- Step 2: Code -->
+                        <div id="send-step-2" class="step">
+                            <div class="code-card">
+                                <div class="code-card-header">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
+                                    <h3>Your Transfer Code</h3>
+                                </div>
+                                <div class="code-display" id="code-display">
+                                    <span class="code-char" id="code-char-0">-</span>
+                                    <span class="code-char" id="code-char-1">-</span>
+                                    <span class="code-char" id="code-char-2">-</span>
+                                    <span class="code-char" id="code-char-3">-</span>
+                                    <span class="code-char" id="code-char-4">-</span>
+                                    <span class="code-char" id="code-char-5">-</span>
+                                </div>
+                                <button class="btn-copy" id="copy-code-btn" title="Copy code">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    <span>Copy Code</span>
+                                </button>
+                                <div class="qr-wrapper">
+                                    <div id="qr-code" class="qr-code"></div>
+                                    <p class="qr-label">Scan with receiver's device</p>
+                                </div>
+                            </div>
+                            <div class="status-bar" id="send-status">
+                                <div class="status-pulse"></div>
+                                <span>Waiting for receiver to connect...</span>
+                            </div>
+                            <button class="btn btn-ghost" onclick="cancelSend()">Cancel</button>
+                        </div>
+
+                        <!-- Step 3: Transferring -->
+                        <div id="send-step-3" class="step">
+                            <div class="transfer-card">
+                                <div class="transfer-header">
+                                    <div class="transfer-anim">
+                                        <div class="transfer-dot d1"></div>
+                                        <div class="transfer-dot d2"></div>
+                                        <div class="transfer-dot d3"></div>
+                                    </div>
+                                    <h3>Sending Files...</h3>
+                                </div>
+                                <div class="connection-badge" id="send-conn-badge">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                    <span id="send-conn-type">Detecting...</span>
+                                </div>
+                                <div class="current-file" id="send-current-file">
+                                    <span class="file-icon-svg" id="send-file-icon"></span>
+                                    <span class="file-name">Preparing...</span>
+                                </div>
+                                <div class="progress-wrapper">
+                                    <div class="progress-bar"><div class="progress-fill" id="send-progress-fill"></div></div>
+                                    <div class="progress-info"><span id="send-percent">0%</span><span id="send-transferred">0 B / 0 B</span></div>
+                                    <div class="progress-info"><span id="send-speed">Calculating...</span><span id="send-eta"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Complete -->
+                        <div id="send-step-4" class="step">
+                            <div class="complete-card">
+                                <div class="complete-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                </div>
+                                <h3>Transfer Complete!</h3>
+                                <p id="send-summary">All files have been sent successfully.</p>
+                                <button class="btn btn-primary" onclick="resetApp()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                    Send More Files
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECEIVE PANEL -->
+                    <div id="receive-panel" class="panel">
+                        <div id="receive-step-1" class="step active">
+                            <div class="receive-card">
+                                <div class="receive-header">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <h3>Receive Files</h3>
+                                    <p>Enter the 6-digit code from the sender</p>
+                                </div>
+                                <div class="code-input-group">
+                                    <input type="text" class="code-input" id="code-input-0" maxlength="1" data-index="0" autocomplete="off" inputmode="text">
+                                    <input type="text" class="code-input" id="code-input-1" maxlength="1" data-index="1" autocomplete="off" inputmode="text">
+                                    <input type="text" class="code-input" id="code-input-2" maxlength="1" data-index="2" autocomplete="off" inputmode="text">
+                                    <input type="text" class="code-input" id="code-input-3" maxlength="1" data-index="3" autocomplete="off" inputmode="text">
+                                    <input type="text" class="code-input" id="code-input-4" maxlength="1" data-index="4" autocomplete="off" inputmode="text">
+                                    <input type="text" class="code-input" id="code-input-5" maxlength="1" data-index="5" autocomplete="off" inputmode="text">
+                                </div>
+                                <button id="connect-btn" class="btn btn-primary btn-block" disabled>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                                    Connect & Receive
+                                </button>
+                                <div class="divider"><span>OR</span></div>
+                                <button id="scan-qr-btn" class="btn btn-secondary btn-block">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    Scan QR Code
+                                </button>
+                                <div id="qr-reader-wrapper" class="qr-reader-wrapper hidden">
+                                    <div id="qr-reader"></div>
+                                    <button class="btn btn-ghost btn-sm" id="stop-scanner-btn">Close Scanner</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="receive-step-connecting" class="step">
+                            <div class="connecting-card">
+                                <div class="loader-ring"></div>
+                                <h3 id="connecting-status-title">Connecting...</h3>
+                                <p id="connecting-status-msg">Establishing direct peer-to-peer connection</p>
+                                <button class="btn btn-ghost btn-sm" onclick="cancelReceive()" style="margin-top:16px;">Cancel</button>
+                            </div>
+                        </div>
+
+                        <div id="receive-step-2" class="step">
+                            <div class="transfer-card">
+                                <div class="transfer-header">
+                                    <div class="transfer-anim receive-anim">
+                                        <div class="transfer-dot d1"></div>
+                                        <div class="transfer-dot d2"></div>
+                                        <div class="transfer-dot d3"></div>
+                                    </div>
+                                    <h3>Receiving Files...</h3>
+                                </div>
+                                <div class="connection-badge" id="recv-conn-badge">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                    <span id="recv-conn-type">Detecting...</span>
+                                </div>
+                                <div class="current-file" id="receive-current-file">
+                                    <span class="file-icon-svg" id="recv-file-icon"></span>
+                                    <span class="file-name">Preparing...</span>
+                                </div>
+                                <div class="progress-wrapper">
+                                    <div class="progress-bar"><div class="progress-fill" id="receive-progress-fill"></div></div>
+                                    <div class="progress-info"><span id="receive-percent">0%</span><span id="receive-transferred">0 B / 0 B</span></div>
+                                    <div class="progress-info"><span id="receive-speed">Calculating...</span><span id="receive-eta"></span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="receive-step-3" class="step">
+                            <div class="complete-card">
+                                <div class="complete-icon receive-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                </div>
+                                <h3 id="receive-complete-title">Files Received!</h3>
+                                <p id="receive-complete-subtitle">All files have been received safely and verified without corruption.</p>
+                                <div id="receive-actions-container" class="receive-actions-container"></div>
+                                <div id="received-files-list" class="received-files"></div>
+                                <button class="btn btn-primary" onclick="resetApp()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                    Receive More Files
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About -->
+        <section id="about" class="about-section">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-badge">About</span>
+                    <h2>About <span class="gradient-text">XerTransfer</span></h2>
+                    <p class="section-subtitle">XerTransfer is a modern peer-to-peer file transfer platform that lets you share any file or folder between any devices instantly — no installation, no signup, no limits.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        </div>
+                        <h3>Lightning Fast</h3>
+                        <p>Direct peer-to-peer transfer means no server bottleneck. Files travel directly between your devices at maximum speed.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <h3>End-to-End Encrypted</h3>
+                        <p>Your files are encrypted during transfer using WebRTC's built-in DTLS encryption. No one can intercept your data.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </div>
+                        <h3>No Size Limits</h3>
+                        <p>Whether it's a 1KB text file or a 100GB video — XerTransfer handles it all. Files never touch our servers.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                        </div>
+                        <h3>Cross Platform</h3>
+                        <p>Works on any device with a modern browser — Windows, Mac, Linux, Android, iOS. No app installation required.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        </div>
+                        <h3>Folder Support</h3>
+                        <p>Upload and transfer entire folders with all their files at once. Folder structure is preserved in file names.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3>100% Free & Private</h3>
+                        <p>No signup, no ads, no tracking. Your files never leave your devices. XerTransfer is completely free and open source.</p>
+                    </div>
+                </div>
+
+                <div class="how-it-works">
+                    <h3>How It Works</h3>
+                    <div class="steps-grid">
+                        <div class="how-step">
+                            <div class="step-number">1</div>
+                            <h4>Select Files</h4>
+                            <p>Choose files or entire folders you want to transfer.</p>
+                        </div>
+                        <div class="step-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+                        <div class="how-step">
+                            <div class="step-number">2</div>
+                            <h4>Share Code</h4>
+                            <p>Get a unique 6-digit code and QR code. Share it with the receiver.</p>
+                        </div>
+                        <div class="step-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+                        <div class="how-step">
+                            <div class="step-number">3</div>
+                            <h4>Receive Instantly</h4>
+                            <p>The receiver enters the code or scans the QR — files transfer via P2P.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Creator Section -->
+                <div class="creator-card">
+                    <div class="creator-avatar">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="creator-info">
+                        <span class="creator-badge">Creator & Developer</span>
+                        <h3>Mayank Mandrai</h3>
+                        <p>Designed and built XerTransfer to give everyone free, ultra-fast, cable-free file transfer across all devices.</p>
+                    </div>
+                </div>
+
+                <div class="tech-note">
+                    <div class="tech-note-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+                    <div>
+                        <strong>Powered by WebRTC & Built-In Serverless Signaling</strong>
+                        <p>XerTransfer uses standard WebRTC technology for direct peer-to-peer connections with an independent, built-in serverless signaling engine. Both sender and receiver need to keep the page open during transfer. For the fastest speeds, connect both devices to the <strong>same Wi-Fi or Phone Hotspot</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                    <span class="logo-text">Xer<span>Transfer</span></span>
+                </div>
+                <p class="footer-tagline">Instant file transfer, no limits.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>Made with <svg width="14" height="14" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> by <strong>Mayank Mandrai</strong></p>
+                <p>&copy; 2026 XerTransfer. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast hidden"><span id="toast-message"></span></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
