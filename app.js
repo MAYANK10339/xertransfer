@@ -211,6 +211,16 @@ function showToast(msg, dur = 3000) {
 const baseURL = () => window.location.origin + window.location.pathname;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+function applyPromoCode(rawCode) {
+    if (!rawCode) return false;
+    const clean = rawCode.trim().toLowerCase().replace(/[\s\-_]/g, '');
+    if (CONFIG.PROMO_CODES.includes(clean)) {
+        unlockTier('lifetime');
+        return true;
+    }
+    return false;
+}
+
 // ──────── 1. USER IDENTITY & PLANS ENGINE ────────
 function initUserIdentityAndPlans() {
     // Load saved identity
@@ -223,9 +233,6 @@ function initUserIdentityAndPlans() {
     state.pin = savedPin;
     state.unlockedTier = savedTier;
     state.currentActivePlan = savedActivePlan;
-
-    updateAccountUI();
-    updatePlanHighlights();
 
     // Account Modal Handlers
     const accountBtn = document.getElementById('user-account-btn');
@@ -293,15 +300,75 @@ function initUserIdentityAndPlans() {
         });
     }
 
+    // Pricing Card Action Buttons
+    const btnFree = document.getElementById('btn-action-free');
+    const btnUlt = document.getElementById('btn-action-ultimate');
+    const btnLife = document.getElementById('btn-action-lifetime');
+    const vipModal = document.getElementById('vip-modal');
+
+    if (btnFree) {
+        btnFree.addEventListener('click', () => {
+            if (state.currentActivePlan === 'free') {
+                showToast('Free Plan is currently active');
+                return;
+            }
+            state.currentActivePlan = 'free';
+            localStorage.setItem('xtfer_active_plan', 'free');
+            updatePlanHighlights();
+            showToast('Switched to Free Standard Plan (100GB limit)');
+        });
+    }
+
+    if (btnUlt) {
+        btnUlt.addEventListener('click', () => {
+            if (state.currentActivePlan === 'ultimate') {
+                showToast('Ultimate 3-Days Plan is currently active');
+                return;
+            }
+            if (state.unlockedTier === 'ultimate' || state.unlockedTier === 'lifetime') {
+                state.currentActivePlan = 'ultimate';
+                localStorage.setItem('xtfer_active_plan', 'ultimate');
+                updatePlanHighlights();
+                showToast('Switched to Ultimate 3-Days VIP Plan (2TB limit)');
+            } else {
+                if (vipModal) {
+                    document.getElementById('vip-modal-title').textContent = 'Unlock Ultimate 3-Days';
+                    document.getElementById('vip-modal-subtitle').textContent = '49 INR for 3 Days of Ultra Super Pro Max Speed';
+                    vipModal.classList.remove('hidden');
+                }
+            }
+        });
+    }
+
+    if (btnLife) {
+        btnLife.addEventListener('click', () => {
+            if (state.currentActivePlan === 'lifetime') {
+                showToast('Ultimate Lifetime VIP Plan is currently active');
+                return;
+            }
+            if (state.unlockedTier === 'lifetime') {
+                state.currentActivePlan = 'lifetime';
+                localStorage.setItem('xtfer_active_plan', 'lifetime');
+                updatePlanHighlights();
+                showToast('Switched to Ultimate Lifetime VIP Plan (2TB limit)');
+            } else {
+                if (vipModal) {
+                    document.getElementById('vip-modal-title').textContent = 'Unlock Ultimate Lifetime Pass';
+                    document.getElementById('vip-modal-subtitle').textContent = '899 INR One-Time for Permanent VIP Access';
+                    vipModal.classList.remove('hidden');
+                }
+            }
+        });
+    }
+
     // Plan Switching Button on Banner
     const togglePlanBtn = document.getElementById('btn-toggle-plan-mode');
     if (togglePlanBtn) {
         togglePlanBtn.addEventListener('click', () => {
             if (state.unlockedTier === 'free') {
-                const vipModal = document.getElementById('vip-modal');
                 if (vipModal) vipModal.classList.remove('hidden');
             } else {
-                // Switch between free and highest tier
+                // Toggle between free and unlocked tier
                 state.currentActivePlan = (state.currentActivePlan === 'free') ? state.unlockedTier : 'free';
                 localStorage.setItem('xtfer_active_plan', state.currentActivePlan);
                 updatePlanHighlights();
@@ -310,39 +377,8 @@ function initUserIdentityAndPlans() {
         });
     }
 
-    // Free Plan Card Switch Button
-    const selectFreeBtn = document.getElementById('btn-select-free-plan');
-    if (selectFreeBtn) {
-        selectFreeBtn.addEventListener('click', () => {
-            state.currentActivePlan = 'free';
-            localStorage.setItem('xtfer_active_plan', 'free');
-            updatePlanHighlights();
-            showToast('Switched to Free Standard Plan (100GB limit)');
-        });
-    }
-
     // VIP Modal Triggers
-    const openVipBtn = document.getElementById('open-vip-modal-btn');
-    const openLifetimeBtn = document.getElementById('open-lifetime-modal-btn');
     const closeVipBtn = document.getElementById('close-vip-modal');
-    const vipModal = document.getElementById('vip-modal');
-
-    if (openVipBtn && vipModal) {
-        openVipBtn.addEventListener('click', () => {
-            document.getElementById('vip-modal-title').textContent = 'Unlock Ultimate 3-Days';
-            document.getElementById('vip-modal-subtitle').textContent = '49 INR for 3 Days of Ultra Super Pro Max Speed';
-            vipModal.classList.remove('hidden');
-        });
-    }
-
-    if (openLifetimeBtn && vipModal) {
-        openLifetimeBtn.addEventListener('click', () => {
-            document.getElementById('vip-modal-title').textContent = 'Unlock Ultimate Lifetime Pass';
-            document.getElementById('vip-modal-subtitle').textContent = '899 INR One-Time for Permanent VIP Access';
-            vipModal.classList.remove('hidden');
-        });
-    }
-
     if (closeVipBtn && vipModal) {
         closeVipBtn.addEventListener('click', () => vipModal.classList.add('hidden'));
     }
@@ -370,7 +406,20 @@ function initUserIdentityAndPlans() {
     if (redeemGiftCardBtn) {
         redeemGiftCardBtn.addEventListener('click', () => {
             const input = document.getElementById('gift-card-code');
-            const code = input ? input.value.trim().toUpperCase() : '';
+            const code = input ? input.value.trim() : '';
+            if (!code) {
+                showToast('Please enter an Amazon Gift Card code or Promo Code');
+                return;
+            }
+
+            // Check if entered code is a promo code (xer786, mm786, xeroriginal)
+            if (applyPromoCode(code)) {
+                if (vipModal) vipModal.classList.add('hidden');
+                if (input) input.value = '';
+                showToast('VIP Promo Code Applied! Lifetime Ultimate Plan Unlocked');
+                return;
+            }
+
             if (code.length < 10) {
                 showToast('Please enter a valid 14-16 character Amazon Gift Card voucher code');
                 return;
@@ -394,22 +443,24 @@ function initUserIdentityAndPlans() {
     if (redeemPromoBtn) {
         redeemPromoBtn.addEventListener('click', () => {
             const input = document.getElementById('promo-code-input');
-            const code = input ? input.value.trim().toLowerCase() : '';
+            const code = input ? input.value : '';
             if (!code) {
                 showToast('Please enter a promo code');
                 return;
             }
 
-            if (CONFIG.PROMO_CODES.includes(code)) {
-                unlockTier('lifetime');
+            if (applyPromoCode(code)) {
                 if (vipModal) vipModal.classList.add('hidden');
                 if (input) input.value = '';
                 showToast('VIP Promo Code Applied! Lifetime Ultimate Plan Unlocked');
             } else {
-                showToast('Invalid promo code. Please check and try again');
+                showToast('Invalid promo code. Valid codes: xer786, mm786, xeroriginal');
             }
         });
     }
+
+    updateAccountUI();
+    updatePlanHighlights();
 }
 
 function unlockTier(tier) {
@@ -462,10 +513,54 @@ function updatePlanHighlights() {
     const cardUlt = document.getElementById('pricing-card-ultimate');
     const cardLife = document.getElementById('pricing-card-lifetime');
 
+    const btnFree = document.getElementById('btn-action-free');
+    const btnUlt = document.getElementById('btn-action-ultimate');
+    const btnLife = document.getElementById('btn-action-lifetime');
+
     if (cardFree) cardFree.classList.toggle('is-current-active', state.currentActivePlan === 'free');
     if (cardUlt) cardUlt.classList.toggle('is-current-active', state.currentActivePlan === 'ultimate');
     if (cardLife) cardLife.classList.toggle('is-current-active', state.currentActivePlan === 'lifetime');
 
+    // Free Card Button
+    if (btnFree) {
+        if (state.currentActivePlan === 'free') {
+            btnFree.textContent = 'Active Plan';
+            btnFree.className = 'btn btn-secondary btn-block plan-action-btn is-active-btn';
+        } else {
+            btnFree.textContent = 'Switch to Free Plan';
+            btnFree.className = 'btn btn-secondary btn-block plan-action-btn is-switch-btn';
+        }
+    }
+
+    // Ultimate 3-Days Card Button
+    if (btnUlt) {
+        if (state.currentActivePlan === 'ultimate') {
+            btnUlt.textContent = 'Active Plan';
+            btnUlt.className = 'btn btn-primary btn-block btn-vip plan-action-btn is-active-btn';
+        } else if (state.unlockedTier === 'ultimate' || state.unlockedTier === 'lifetime') {
+            btnUlt.textContent = 'Switch to Ultimate';
+            btnUlt.className = 'btn btn-primary btn-block btn-vip plan-action-btn is-switch-btn';
+        } else {
+            btnUlt.textContent = 'Unlock Ultimate (49 INR)';
+            btnUlt.className = 'btn btn-primary btn-block btn-vip plan-action-btn';
+        }
+    }
+
+    // Lifetime VIP Card Button
+    if (btnLife) {
+        if (state.currentActivePlan === 'lifetime') {
+            btnLife.textContent = 'Active Plan';
+            btnLife.className = 'btn btn-primary btn-block btn-lifetime plan-action-btn is-active-btn';
+        } else if (state.unlockedTier === 'lifetime') {
+            btnLife.textContent = 'Switch to Lifetime VIP';
+            btnLife.className = 'btn btn-primary btn-block btn-lifetime plan-action-btn is-switch-btn';
+        } else {
+            btnLife.textContent = 'Get Lifetime VIP (899 INR)';
+            btnLife.className = 'btn btn-primary btn-block btn-lifetime plan-action-btn';
+        }
+    }
+
+    // Status Banner
     if (state.currentActivePlan === 'lifetime') {
         CONFIG.BUFFER_HIGH = 8 * 1024 * 1024;
         if (banner) banner.className = 'plan-status-banner lifetime-active';
