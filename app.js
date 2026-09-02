@@ -1,10 +1,11 @@
 /* ============================================================
    XerTransfer — Ultra Super Pro Max 4-Digit Engine
    - 4-Digit Numeric Pairing Code (0-9 Numbers Only)
-   - Ultra Super Pro Max Dual-Rail Speed Pipeline
-   - 100% Guaranteed Zero-Corruption In-Flight Guard
-   - Membership Plans & Amazon Pay Gift Card VIP Redemption
-   - Free Creator VIP Bypass for Mayank Mandrai
+   - 3 Plans: Free (100GB), Ultimate 3-Days (2TB), Lifetime VIP (2TB)
+   - Permanent VIP Promo Codes: xer786, mm786, xeroriginal
+   - Secret User Identity (@username + 3-Digit Hidden PIN)
+   - Plan Switching Engine & 100% Zero-Corruption Guard
+   - Clean SaaS Interface (Zero Emojis)
    - Created by Mayank Mandrai
    ============================================================ */
 
@@ -17,7 +18,10 @@ const CONFIG = {
     CODE_LENGTH: 4,                  // 4-Digit Numeric Pairing Code
     CODE_CHARS: '0123456789',        // Numbers Only
     SPEED_INTERVAL: 100,             // 100ms smooth UI speed calculation
+    FREE_LIMIT: 100 * 1024 * 1024 * 1024,  // 100 GB Free Plan Limit
+    VIP_LIMIT: 2 * 1024 * 1024 * 1024 * 1024, // 2 TB Ultimate Limit
     TOPIC_PREFIX: 'xtfer_num4_',
+    PROMO_CODES: ['xer786', 'mm786', 'xeroriginal'],
     SIGNAL_SERVERS: [
         { http: 'https://ntfy.sh', ws: 'wss://ntfy.sh' },
         { http: 'https://notify.woodland.coffee', ws: 'wss://notify.woodland.coffee' }
@@ -79,7 +83,14 @@ const state = {
     transferCode: '',
     role: null,
     isTransferring: false,
-    isVipUser: false,
+
+    // Account & Plans
+    username: 'guest',
+    pin: '000',
+    isPinVisible: false,
+    currentActivePlan: 'free',     // 'free', 'ultimate', 'lifetime'
+    unlockedTier: 'free',          // Highest unlocked tier for this device/account: 'free', 'ultimate', 'lifetime'
+
     qrScanner: null,
     totalBytes: 0,
     transferredBytes: 0,
@@ -103,7 +114,6 @@ const state = {
 };
 
 // ──────── Helpers & Accurate MIME Type Resolution ────────
-// Generates 4-digit numbers only (e.g. 4829, 1057)
 const genCode = () => {
     let num = Math.floor(1000 + Math.random() * 9000);
     return num.toString();
@@ -201,104 +211,282 @@ function showToast(msg, dur = 3000) {
 const baseURL = () => window.location.origin + window.location.pathname;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// ──────── 1. VIP MEMBERSHIP & CREATOR BYPASS ────────
-function initVipStatus() {
-    const isVip = localStorage.getItem('xtfer_vip_active') === 'true';
-    setVipMode(isVip);
+// ──────── 1. USER IDENTITY & PLANS ENGINE ────────
+function initUserIdentityAndPlans() {
+    // Load saved identity
+    const savedUser = localStorage.getItem('xtfer_username') || 'guest';
+    const savedPin = localStorage.getItem('xtfer_pin') || '000';
+    const savedTier = localStorage.getItem('xtfer_unlocked_tier') || 'free';
+    const savedActivePlan = localStorage.getItem('xtfer_active_plan') || savedTier;
 
-    // Modal Triggers
-    const openModalBtn = document.getElementById('open-vip-modal-btn');
-    const closeModalBtn = document.getElementById('close-vip-modal');
-    const modal = document.getElementById('vip-modal');
-    const redeemBtn = document.getElementById('redeem-gift-card-btn');
-    const creatorBypassBtn = document.getElementById('btn-creator-free-bypass');
-    const creatorVipToggleBtn = document.getElementById('creator-vip-toggle-btn');
-    const creatorAvatar = document.getElementById('creator-avatar-btn');
+    state.username = savedUser;
+    state.pin = savedPin;
+    state.unlockedTier = savedTier;
+    state.currentActivePlan = savedActivePlan;
 
-    if (openModalBtn && modal) {
-        openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
-    }
-    if (closeModalBtn && modal) {
-        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
-    }
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.add('hidden');
+    updateAccountUI();
+    updatePlanHighlights();
+
+    // Account Modal Handlers
+    const accountBtn = document.getElementById('user-account-btn');
+    const accountModal = document.getElementById('account-modal');
+    const closeAccountModal = document.getElementById('close-account-modal');
+    const saveAccountBtn = document.getElementById('save-account-btn');
+    const togglePinBtn = document.getElementById('toggle-pin-visibility');
+
+    if (accountBtn && accountModal) {
+        accountBtn.addEventListener('click', () => {
+            const userInput = document.getElementById('acc-username-input');
+            const pinInput = document.getElementById('acc-pin-input');
+            if (userInput) userInput.value = state.username === 'guest' ? '' : state.username;
+            if (pinInput) pinInput.value = state.pin === '000' ? '' : state.pin;
+            accountModal.classList.remove('hidden');
         });
     }
 
-    if (redeemBtn) {
-        redeemBtn.addEventListener('click', () => {
+    if (closeAccountModal && accountModal) {
+        closeAccountModal.addEventListener('click', () => accountModal.classList.add('hidden'));
+    }
+
+    if (accountModal) {
+        accountModal.addEventListener('click', (e) => {
+            if (e.target === accountModal) accountModal.classList.add('hidden');
+        });
+    }
+
+    if (togglePinBtn) {
+        togglePinBtn.addEventListener('click', () => {
+            state.isPinVisible = !state.isPinVisible;
+            const pinInput = document.getElementById('acc-pin-input');
+            if (pinInput) pinInput.type = state.isPinVisible ? 'text' : 'password';
+            updateAccountUI();
+        });
+    }
+
+    if (saveAccountBtn) {
+        saveAccountBtn.addEventListener('click', () => {
+            const userInput = document.getElementById('acc-username-input');
+            const pinInput = document.getElementById('acc-pin-input');
+            const u = (userInput ? userInput.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '') : '') || 'guest';
+            const p = (pinInput ? pinInput.value.trim().replace(/[^0-9]/g, '').slice(0, 3) : '') || '000';
+
+            state.username = u;
+            state.pin = p.padStart(3, '0');
+
+            localStorage.setItem('xtfer_username', state.username);
+            localStorage.setItem('xtfer_pin', state.pin);
+
+            // Cloud identity lookup for promo unlock
+            const db = JSON.parse(localStorage.getItem('xtfer_cloud_identities') || '{}');
+            const accountKey = `${state.username}#${state.pin}`;
+            if (db[accountKey]) {
+                state.unlockedTier = db[accountKey];
+                state.currentActivePlan = db[accountKey];
+                localStorage.setItem('xtfer_unlocked_tier', state.unlockedTier);
+                localStorage.setItem('xtfer_active_plan', state.currentActivePlan);
+            }
+
+            updateAccountUI();
+            updatePlanHighlights();
+            if (accountModal) accountModal.classList.add('hidden');
+            showToast(`Identity @${state.username} synchronized successfully`);
+        });
+    }
+
+    // Plan Switching Button on Banner
+    const togglePlanBtn = document.getElementById('btn-toggle-plan-mode');
+    if (togglePlanBtn) {
+        togglePlanBtn.addEventListener('click', () => {
+            if (state.unlockedTier === 'free') {
+                const vipModal = document.getElementById('vip-modal');
+                if (vipModal) vipModal.classList.remove('hidden');
+            } else {
+                // Switch between free and highest tier
+                state.currentActivePlan = (state.currentActivePlan === 'free') ? state.unlockedTier : 'free';
+                localStorage.setItem('xtfer_active_plan', state.currentActivePlan);
+                updatePlanHighlights();
+                showToast(`Switched to ${state.currentActivePlan.toUpperCase()} Plan`);
+            }
+        });
+    }
+
+    // Free Plan Card Switch Button
+    const selectFreeBtn = document.getElementById('btn-select-free-plan');
+    if (selectFreeBtn) {
+        selectFreeBtn.addEventListener('click', () => {
+            state.currentActivePlan = 'free';
+            localStorage.setItem('xtfer_active_plan', 'free');
+            updatePlanHighlights();
+            showToast('Switched to Free Standard Plan (100GB limit)');
+        });
+    }
+
+    // VIP Modal Triggers
+    const openVipBtn = document.getElementById('open-vip-modal-btn');
+    const openLifetimeBtn = document.getElementById('open-lifetime-modal-btn');
+    const closeVipBtn = document.getElementById('close-vip-modal');
+    const vipModal = document.getElementById('vip-modal');
+
+    if (openVipBtn && vipModal) {
+        openVipBtn.addEventListener('click', () => {
+            document.getElementById('vip-modal-title').textContent = 'Unlock Ultimate 3-Days';
+            document.getElementById('vip-modal-subtitle').textContent = '49 INR for 3 Days of Ultra Super Pro Max Speed';
+            vipModal.classList.remove('hidden');
+        });
+    }
+
+    if (openLifetimeBtn && vipModal) {
+        openLifetimeBtn.addEventListener('click', () => {
+            document.getElementById('vip-modal-title').textContent = 'Unlock Ultimate Lifetime Pass';
+            document.getElementById('vip-modal-subtitle').textContent = '899 INR One-Time for Permanent VIP Access';
+            vipModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeVipBtn && vipModal) {
+        closeVipBtn.addEventListener('click', () => vipModal.classList.add('hidden'));
+    }
+
+    if (vipModal) {
+        vipModal.addEventListener('click', (e) => {
+            if (e.target === vipModal) vipModal.classList.add('hidden');
+        });
+    }
+
+    // Modal Tabs (Amazon Gift Card vs Promo Code)
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const target = tab.dataset.tab;
+            document.querySelectorAll('.checkout-tab-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.getElementById(`tab-${target}`);
+            if (panel) panel.classList.add('active');
+        });
+    });
+
+    // Gift Card Redemption
+    const redeemGiftCardBtn = document.getElementById('redeem-gift-card-btn');
+    if (redeemGiftCardBtn) {
+        redeemGiftCardBtn.addEventListener('click', () => {
             const input = document.getElementById('gift-card-code');
             const code = input ? input.value.trim().toUpperCase() : '';
-            if (code.length < 8) {
-                showToast('Please enter a valid 14-16 character Amazon Gift Card code');
+            if (code.length < 10) {
+                showToast('Please enter a valid 14-16 character Amazon Gift Card voucher code');
                 return;
             }
 
-            // Creator Promo Codes or Amazon Card submission
-            if (code === 'MAYANKVIP' || code === 'CREATOR' || code === 'ADMIN777') {
-                activateCreatorVip();
-                if (modal) modal.classList.add('hidden');
-                return;
-            }
-
-            // Store voucher submission for admin redemption
             try {
                 const saved = JSON.parse(localStorage.getItem('xtfer_submitted_vouchers') || '[]');
-                saved.push({ code: code, date: new Date().toISOString() });
+                saved.push({ code, user: state.username, date: new Date().toISOString() });
                 localStorage.setItem('xtfer_submitted_vouchers', JSON.stringify(saved));
             } catch (e) {}
 
-            setVipMode(true);
-            showToast('👑 Ultimate VIP Pro Max Activated! Enjoy Ultra Super Speed ⚡', 4000);
-            if (modal) modal.classList.add('hidden');
+            unlockTier('ultimate');
+            if (vipModal) vipModal.classList.add('hidden');
             if (input) input.value = '';
+            showToast('Ultimate VIP Plan activated successfully');
         });
     }
 
-    if (creatorBypassBtn) {
-        creatorBypassBtn.addEventListener('click', () => {
-            activateCreatorVip();
-            if (modal) modal.classList.add('hidden');
-        });
-    }
+    // Promo Code Redemption (xer786, mm786, xeroriginal)
+    const redeemPromoBtn = document.getElementById('redeem-promo-btn');
+    if (redeemPromoBtn) {
+        redeemPromoBtn.addEventListener('click', () => {
+            const input = document.getElementById('promo-code-input');
+            const code = input ? input.value.trim().toLowerCase() : '';
+            if (!code) {
+                showToast('Please enter a promo code');
+                return;
+            }
 
-    if (creatorVipToggleBtn) {
-        creatorVipToggleBtn.addEventListener('click', () => {
-            activateCreatorVip();
-        });
-    }
-
-    let clickCount = 0;
-    if (creatorAvatar) {
-        creatorAvatar.addEventListener('click', () => {
-            clickCount++;
-            if (clickCount >= 3) {
-                clickCount = 0;
-                activateCreatorVip();
+            if (CONFIG.PROMO_CODES.includes(code)) {
+                unlockTier('lifetime');
+                if (vipModal) vipModal.classList.add('hidden');
+                if (input) input.value = '';
+                showToast('VIP Promo Code Applied! Lifetime Ultimate Plan Unlocked');
+            } else {
+                showToast('Invalid promo code. Please check and try again');
             }
         });
     }
 }
 
-function activateCreatorVip() {
-    setVipMode(true);
-    showToast('👑 Welcome Creator Mayank! Lifetime Ultimate VIP Active 🎉', 4000);
+function unlockTier(tier) {
+    state.unlockedTier = tier;
+    state.currentActivePlan = tier;
+    localStorage.setItem('xtfer_unlocked_tier', tier);
+    localStorage.setItem('xtfer_active_plan', tier);
+
+    // Persist to user identity account
+    try {
+        const db = JSON.parse(localStorage.getItem('xtfer_cloud_identities') || '{}');
+        const accountKey = `${state.username}#${state.pin}`;
+        db[accountKey] = tier;
+        localStorage.setItem('xtfer_cloud_identities', JSON.stringify(db));
+    } catch (e) {}
+
+    updateAccountUI();
+    updatePlanHighlights();
 }
 
-function setVipMode(enable) {
-    state.isVipUser = enable;
-    localStorage.setItem('xtfer_vip_active', enable ? 'true' : 'false');
+function updateAccountUI() {
+    const nameEl = document.getElementById('nav-username-display');
+    const pinEl = document.getElementById('nav-pin-display');
+    const badgeEl = document.getElementById('nav-plan-badge');
+    const modalStatus = document.getElementById('modal-account-status');
 
-    const vipPill = document.getElementById('nav-vip-pill');
-    if (vipPill) vipPill.classList.toggle('hidden', !enable);
+    if (nameEl) nameEl.textContent = `@${state.username}`;
+    if (pinEl) pinEl.textContent = state.isPinVisible ? state.pin : '•••';
 
-    if (enable) {
-        CONFIG.BUFFER_HIGH = 8 * 1024 * 1024; // 8MB turbo pipeline
+    if (badgeEl) {
+        badgeEl.className = 'plan-indicator-badge active-plan-' + state.currentActivePlan;
+        badgeEl.textContent = state.currentActivePlan.toUpperCase();
+    }
+
+    if (modalStatus) {
+        modalStatus.className = 'status-' + state.currentActivePlan;
+        modalStatus.textContent = state.currentActivePlan === 'lifetime'
+            ? 'Lifetime Ultimate Pass'
+            : (state.currentActivePlan === 'ultimate' ? 'Ultimate 3-Days' : 'Free Standard Plan');
+    }
+}
+
+function updatePlanHighlights() {
+    const banner = document.getElementById('plan-status-banner');
+    const bannerName = document.getElementById('banner-plan-name');
+    const toggleBtn = document.getElementById('btn-toggle-plan-mode');
+    const uploadHint = document.getElementById('upload-limit-hint');
+
+    const cardFree = document.getElementById('pricing-card-free');
+    const cardUlt = document.getElementById('pricing-card-ultimate');
+    const cardLife = document.getElementById('pricing-card-lifetime');
+
+    if (cardFree) cardFree.classList.toggle('is-current-active', state.currentActivePlan === 'free');
+    if (cardUlt) cardUlt.classList.toggle('is-current-active', state.currentActivePlan === 'ultimate');
+    if (cardLife) cardLife.classList.toggle('is-current-active', state.currentActivePlan === 'lifetime');
+
+    if (state.currentActivePlan === 'lifetime') {
+        CONFIG.BUFFER_HIGH = 8 * 1024 * 1024;
+        if (banner) banner.className = 'plan-status-banner lifetime-active';
+        if (bannerName) bannerName.textContent = 'Ultimate Lifetime Pass Active (2TB Limit)';
+        if (toggleBtn) toggleBtn.textContent = 'Switch to Free Mode';
+        if (uploadHint) uploadHint.textContent = 'Ultimate Lifetime Plan active: Up to 2TB file & folder streaming.';
+    } else if (state.currentActivePlan === 'ultimate') {
+        CONFIG.BUFFER_HIGH = 8 * 1024 * 1024;
+        if (banner) banner.className = 'plan-status-banner ultimate-active';
+        if (bannerName) bannerName.textContent = 'Ultimate 3-Days Plan Active (2TB Limit)';
+        if (toggleBtn) toggleBtn.textContent = 'Switch to Free Mode';
+        if (uploadHint) uploadHint.textContent = 'Ultimate VIP Plan active: Up to 2TB file & folder streaming.';
     } else {
         CONFIG.BUFFER_HIGH = 4 * 1024 * 1024;
+        if (banner) banner.className = 'plan-status-banner';
+        if (bannerName) bannerName.textContent = 'Free Standard Plan (100GB Limit)';
+        if (toggleBtn) toggleBtn.textContent = state.unlockedTier !== 'free' ? 'Switch to Ultimate' : 'Upgrade to Ultimate';
+        if (uploadHint) uploadHint.textContent = 'Free Plan supports up to 100GB per batch. Ultimate Plan supports up to 2TB.';
     }
+
+    updateAccountUI();
 }
 
 // ──────── 2. THEMES & FLUID CANVAS ────────
@@ -505,7 +693,7 @@ function renderFileList() {
             <div class="folder-header-card">
                 <div class="folder-header-icon">${ICONS.folder}</div>
                 <div class="folder-header-info">
-                    <div class="folder-header-name">📁 ${state.folderName}</div>
+                    <div class="folder-header-name">${state.folderName}</div>
                     <div class="folder-header-meta">Entire Folder Structure Preserved &middot; ${state.selectedFiles.length} files</div>
                 </div>
             </div>
@@ -717,6 +905,14 @@ function queueCandidateForBatch(code, candidate) {
 // ──────── 6. 4-DIGIT SENDER WORKFLOW ────────
 async function startSending() {
     if (!state.selectedFiles.length) return;
+
+    // Plan limit validation
+    const totalSize = state.selectedFiles.reduce((s, f) => s + f.size, 0);
+    if (state.currentActivePlan === 'free' && totalSize > CONFIG.FREE_LIMIT) {
+        showToast('Free Plan limit is 100GB. Switch or upgrade to Ultimate Plan for up to 2TB transfer.');
+        return;
+    }
+
     state.role = 'sender';
     state.myId = 'snd_' + Math.random().toString(36).substring(2, 9);
     state.lastOfferSdp = null;
@@ -745,7 +941,7 @@ async function startSending() {
         correctLevel: QRCode.CorrectLevel.M,
     });
 
-    updateSendStatus('Ready for receiver — Instant 4-Digit P2P active ⚡', 'connected');
+    updateSendStatus('Ready for receiver — Instant 4-Digit P2P active', 'connected');
 
     cleanupConnection();
 
@@ -819,7 +1015,7 @@ async function initiateSenderWebRTC(code) {
     dc.onopen = () => {
         state.isInitiating = false;
         stopListeningSignals();
-        updateSendStatus('Ultra Direct P2P Link Active ⚡ Transferring...', 'connected');
+        updateSendStatus('Ultra Direct P2P Link Active - Transferring...', 'connected');
         startSenderFileStream();
     };
 
@@ -847,7 +1043,9 @@ async function initiateSenderWebRTC(code) {
     pc.oniceconnectionstatechange = () => {
         const connBadge = document.getElementById('send-conn-type');
         if (connBadge && pc.iceConnectionState === 'connected') {
-            connBadge.textContent = state.isVipUser ? '👑 Ultra Super Pro Max VIP ⚡' : 'Ultra Turbo P2P ⚡';
+            connBadge.textContent = state.currentActivePlan !== 'free'
+                ? 'Ultra Super Pro Max VIP Tunnel'
+                : 'Direct LAN P2P';
             const b = document.getElementById('send-conn-badge');
             if (b) b.className = 'connection-badge conn-direct';
         }
@@ -1005,7 +1203,7 @@ async function startSenderFileStream() {
     showStep('send-panel', 'send-step-4');
     document.getElementById('send-summary').textContent =
         `Sent ${state.selectedFiles.length} item${state.selectedFiles.length > 1 ? 's' : ''} (${fmtSize(state.totalBytes)})`;
-    showToast('Transfer complete! 🎉');
+    showToast('Transfer completed successfully');
 }
 
 function updateProgressThrottled(prefix) {
@@ -1044,7 +1242,7 @@ function copyCode() {
         const b = document.getElementById('copy-code-btn');
         b.classList.add('copied');
         b.querySelector('span').textContent = 'Copied!';
-        showToast('4-Digit Code copied to clipboard!');
+        showToast('4-Digit Code copied to clipboard');
         setTimeout(() => {
             b.classList.remove('copied');
             b.querySelector('span').textContent = 'Copy Code';
@@ -1083,7 +1281,7 @@ async function connectToSender(code) {
 
     startListeningSignals(code, async (signal) => {
         if (signal.type === 'offer') {
-            if (statusTitle) statusTitle.textContent = 'Connected!';
+            if (statusTitle) statusTitle.textContent = 'Connected';
             if (statusMsg) statusMsg.textContent = 'Opening direct stream...';
             await handleReceiverOffer(code, signal.sdp, signal.candidates);
         } else if (signal.type === 'candidates_batch' && state.pc) {
@@ -1157,7 +1355,9 @@ async function handleReceiverOffer(code, offerSdp, offerCandidates) {
     pc.oniceconnectionstatechange = () => {
         const connBadge = document.getElementById('recv-conn-type');
         if (connBadge && pc.iceConnectionState === 'connected') {
-            connBadge.textContent = state.isVipUser ? '👑 Ultra Super Pro Max VIP ⚡' : 'Ultra Turbo P2P ⚡';
+            connBadge.textContent = state.currentActivePlan !== 'free'
+                ? 'Ultra Super Pro Max VIP Tunnel'
+                : 'Direct LAN P2P';
             const b = document.getElementById('recv-conn-badge');
             if (b) b.className = 'connection-badge conn-direct';
         }
@@ -1330,7 +1530,7 @@ function handleBatchEnd() {
     const titleEl = document.getElementById('receive-complete-title');
     const subtitleEl = document.getElementById('receive-complete-subtitle');
     if (titleEl) {
-        titleEl.textContent = isFolder ? `Folder "${folderName}" Received!` : 'Files Received!';
+        titleEl.textContent = isFolder ? `Folder "${folderName}" Received` : 'Files Received';
     }
     if (subtitleEl) {
         subtitleEl.textContent = `${totalFiles} item${totalFiles > 1 ? 's' : ''} (${fmtSize(state.totalBytes)}) verified healthy & ready.`;
@@ -1370,7 +1570,7 @@ function handleBatchEnd() {
     }).join('');
 
     document.getElementById('received-files-list').innerHTML = filesHtml;
-    showToast('Transfer completed & verified! 🎉');
+    showToast('Transfer completed & verified');
 
     if (!isFolder && totalFiles === 1) {
         const single = state.receiving.done[0];
@@ -1423,7 +1623,7 @@ async function downloadFolderAsZip() {
         a.click();
         document.body.removeChild(a);
 
-        showToast('Folder ZIP downloaded successfully! 📦');
+        showToast('Folder ZIP downloaded successfully');
     } catch (err) {
         console.error('ZIP error:', err);
         showToast('Failed to create ZIP');
@@ -1462,7 +1662,7 @@ async function saveDirectlyToFolder() {
             await writable.close();
         }
 
-        showToast('Entire folder saved directly to disk! 🎉');
+        showToast('Entire folder saved directly to disk');
     } catch (err) {
         if (err.name !== 'AbortError') {
             console.error('Folder save error:', err);
@@ -1773,19 +1973,19 @@ function checkHash() {
 
 // ──────── 16. INITIALIZE ────────
 document.addEventListener('DOMContentLoaded', () => {
-    initVipStatus();
+    initUserIdentityAndPlans();
     initThemeAndLiquidGlass();
     setup();
     checkHash();
     document.body.style.opacity = '1';
-    console.log('%cXerTransfer Ultra Super Pro Max 4-Digit Engine Ready ⚡', 'font-size:20px;font-weight:bold;color:#8b5cf6');
-    console.log('%cCreated by Mayank Mandrai', 'font-size:11px;color:#06b6d4');
+    console.log('XerTransfer Ultra Super Pro Max 4-Digit Engine Ready');
+    console.log('Created by Mayank Mandrai');
 });
 
 window.addEventListener('beforeunload', (e) => {
     if (state.isTransferring) {
         e.preventDefault();
-        e.returnValue = 'Transfer in progress!';
+        e.returnValue = 'Transfer in progress';
     }
     cleanupConnection();
 });
