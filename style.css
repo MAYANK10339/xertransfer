@@ -3,7 +3,7 @@
    - Clean, Professional Emoji-Free SaaS Interface
    - 4-Digit Numeric Pairing System (Perfect Mobile & Desktop Fit)
    - 4 Curated Themes: Cosmic Nebula, Emerald Matrix, Solar Flare, Frost Crystal
-   - 3 Pricing Plans: Free (100GB), Ultimate 3-Days (2TB), Lifetime VIP (2TB)
+   - 3 Pricing Plans: Free (100GB), Ultimate 3-Days (5TB), Lifetime VIP (Unlimited)
    - Secret User Identity (@username + 3-Digit Hidden PIN)
    - 120 FPS GPU-Accelerated Layer Compositing (0% UI Lag)
    - Created by Mayank Mandrai
@@ -219,6 +219,10 @@ html {
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+section {
+    scroll-margin-top: 80px;
 }
 
 body {
