@@ -18,8 +18,9 @@ const CONFIG = {
     CODE_LENGTH: 4,                  // 4-Digit Numeric Pairing Code
     CODE_CHARS: '0123456789',        // Numbers Only
     SPEED_INTERVAL: 100,             // 100ms smooth UI speed calculation
-    FREE_LIMIT: 100 * 1024 * 1024 * 1024,  // 100 GB Free Plan Limit
-    VIP_LIMIT: 2 * 1024 * 1024 * 1024 * 1024, // 2 TB Ultimate Limit
+    FREE_LIMIT: 100 * 1024 * 1024 * 1024,      // 100 GB Free Plan Limit
+    ULTIMATE_LIMIT: 5 * 1024 * 1024 * 1024 * 1024, // 5 TB Ultimate Limit
+    LIFETIME_LIMIT: Infinity,                 // Unlimited
     TOPIC_PREFIX: 'xtfer_num4_',
     PROMO_CODES: ['xer786', 'mm786', 'xeroriginal'],
     SIGNAL_SERVERS: [
@@ -564,21 +565,21 @@ function updatePlanHighlights() {
     if (state.currentActivePlan === 'lifetime') {
         CONFIG.BUFFER_HIGH = 8 * 1024 * 1024;
         if (banner) banner.className = 'plan-status-banner lifetime-active';
-        if (bannerName) bannerName.textContent = 'Ultimate Lifetime Pass Active (2TB Limit)';
+        if (bannerName) bannerName.textContent = 'Ultimate Lifetime Pass Active (Unlimited Limit)';
         if (toggleBtn) toggleBtn.textContent = 'Switch to Free Mode';
-        if (uploadHint) uploadHint.textContent = 'Ultimate Lifetime Plan active: Up to 2TB file & folder streaming.';
+        if (uploadHint) uploadHint.textContent = 'Ultimate Lifetime Plan active: Unlimited 100% limitless file & folder streaming.';
     } else if (state.currentActivePlan === 'ultimate') {
         CONFIG.BUFFER_HIGH = 8 * 1024 * 1024;
         if (banner) banner.className = 'plan-status-banner ultimate-active';
-        if (bannerName) bannerName.textContent = 'Ultimate 3-Days Plan Active (2TB Limit)';
+        if (bannerName) bannerName.textContent = 'Ultimate 3-Days Plan Active (5TB Limit)';
         if (toggleBtn) toggleBtn.textContent = 'Switch to Free Mode';
-        if (uploadHint) uploadHint.textContent = 'Ultimate VIP Plan active: Up to 2TB file & folder streaming.';
+        if (uploadHint) uploadHint.textContent = 'Ultimate VIP Plan active: Up to 5TB file & folder streaming.';
     } else {
         CONFIG.BUFFER_HIGH = 4 * 1024 * 1024;
         if (banner) banner.className = 'plan-status-banner';
         if (bannerName) bannerName.textContent = 'Free Standard Plan (100GB Limit)';
         if (toggleBtn) toggleBtn.textContent = state.unlockedTier !== 'free' ? 'Switch to Ultimate' : 'Upgrade to Ultimate';
-        if (uploadHint) uploadHint.textContent = 'Free Plan supports up to 100GB per batch. Ultimate Plan supports up to 2TB.';
+        if (uploadHint) uploadHint.textContent = 'Free Plan: up to 100GB. Ultimate Plan: up to 5TB. Lifetime Plan: Unlimited.';
     }
 
     updateAccountUI();
@@ -1004,7 +1005,11 @@ async function startSending() {
     // Plan limit validation
     const totalSize = state.selectedFiles.reduce((s, f) => s + f.size, 0);
     if (state.currentActivePlan === 'free' && totalSize > CONFIG.FREE_LIMIT) {
-        showToast('Free Plan limit is 100GB. Switch or upgrade to Ultimate Plan for up to 2TB transfer.');
+        showToast('Free Plan limit is 100GB. Switch or upgrade to Ultimate Plan for 5TB or Lifetime for Unlimited.');
+        return;
+    }
+    if (state.currentActivePlan === 'ultimate' && totalSize > CONFIG.ULTIMATE_LIMIT) {
+        showToast('Ultimate 3-Days limit is 5TB. Upgrade to Lifetime VIP for Unlimited transfers.');
         return;
     }
 
