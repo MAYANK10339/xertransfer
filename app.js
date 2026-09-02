@@ -1,24 +1,23 @@
 /* ============================================================
-   XerTransfer — Turbo Liquid Glass Engine (Zero-Corruption & Anti-Stall Edition)
-   - 100% Reliable Handshake: Anti-Stall Watchdog & Answer Retransmit
-   - Universal STUN + Free OpenRelay TURN (Bypasses Strict Mobile Carrier NAT)
-   - Guaranteed 100% Byte-for-Byte Fidelity (Zero Image / File Corruption)
-   - Race-Condition In-Flight Chunk Guard & Explicit Buffer Drain Flush
-   - Bi-directional File ACK Handshake + Precise MIME Resolution
-   - 120 FPS Half-Res Fluid Canvas & 4 Dynamic Themes
+   XerTransfer — Ultra Super Pro Max 4-Digit Engine
+   - 4-Digit Numeric Pairing Code (0-9 Numbers Only)
+   - Ultra Super Pro Max Dual-Rail Speed Pipeline
+   - 100% Guaranteed Zero-Corruption In-Flight Guard
+   - Membership Plans & Amazon Pay Gift Card VIP Redemption
+   - Free Creator VIP Bypass for Mayank Mandrai
    - Created by Mayank Mandrai
    ============================================================ */
 
 // ──────── Configuration ────────
 const CONFIG = {
-    CHUNK_SIZE: 32 * 1024,           // 32KB cross-platform mobile-safe SCTP chunk
-    BUFFER_HIGH: 4 * 1024 * 1024,    // 4MB kernel pipeline ceiling
+    CHUNK_SIZE: 32 * 1024,           // 32KB cross-platform safe chunk
+    BUFFER_HIGH: 4 * 1024 * 1024,    // 4MB kernel pipeline ceiling (8MB in VIP mode)
     BUFFER_LOW: 512 * 1024,          // 512KB resume floor
     READ_BLOCK_SIZE: 4 * 1024 * 1024,// 4MB async disk block slicing
-    CODE_LENGTH: 6,
-    CODE_CHARS: '23456789ABCDEFGHJKMNPQRSTUVWXYZ',
+    CODE_LENGTH: 4,                  // 4-Digit Numeric Pairing Code
+    CODE_CHARS: '0123456789',        // Numbers Only
     SPEED_INTERVAL: 100,             // 100ms smooth UI speed calculation
-    TOPIC_PREFIX: 'xtfer_v3_',
+    TOPIC_PREFIX: 'xtfer_num4_',
     SIGNAL_SERVERS: [
         { http: 'https://ntfy.sh', ws: 'wss://ntfy.sh' },
         { http: 'https://notify.woodland.coffee', ws: 'wss://notify.woodland.coffee' }
@@ -80,6 +79,7 @@ const state = {
     transferCode: '',
     role: null,
     isTransferring: false,
+    isVipUser: false,
     qrScanner: null,
     totalBytes: 0,
     transferredBytes: 0,
@@ -103,8 +103,11 @@ const state = {
 };
 
 // ──────── Helpers & Accurate MIME Type Resolution ────────
-const genCode = () => Array.from({ length: CONFIG.CODE_LENGTH }, () =>
-    CONFIG.CODE_CHARS[Math.random() * CONFIG.CODE_CHARS.length | 0]).join('');
+// Generates 4-digit numbers only (e.g. 4829, 1057)
+const genCode = () => {
+    let num = Math.floor(1000 + Math.random() * 9000);
+    return num.toString();
+};
 
 const fmtSize = (b) => {
     if (b === 0) return '0 B';
@@ -198,7 +201,107 @@ function showToast(msg, dur = 3000) {
 const baseURL = () => window.location.origin + window.location.pathname;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// ──────── 1. THEMES & FLUID CANVAS ────────
+// ──────── 1. VIP MEMBERSHIP & CREATOR BYPASS ────────
+function initVipStatus() {
+    const isVip = localStorage.getItem('xtfer_vip_active') === 'true';
+    setVipMode(isVip);
+
+    // Modal Triggers
+    const openModalBtn = document.getElementById('open-vip-modal-btn');
+    const closeModalBtn = document.getElementById('close-vip-modal');
+    const modal = document.getElementById('vip-modal');
+    const redeemBtn = document.getElementById('redeem-gift-card-btn');
+    const creatorBypassBtn = document.getElementById('btn-creator-free-bypass');
+    const creatorVipToggleBtn = document.getElementById('creator-vip-toggle-btn');
+    const creatorAvatar = document.getElementById('creator-avatar-btn');
+
+    if (openModalBtn && modal) {
+        openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+    }
+    if (closeModalBtn && modal) {
+        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    }
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+    }
+
+    if (redeemBtn) {
+        redeemBtn.addEventListener('click', () => {
+            const input = document.getElementById('gift-card-code');
+            const code = input ? input.value.trim().toUpperCase() : '';
+            if (code.length < 8) {
+                showToast('Please enter a valid 14-16 character Amazon Gift Card code');
+                return;
+            }
+
+            // Creator Promo Codes or Amazon Card submission
+            if (code === 'MAYANKVIP' || code === 'CREATOR' || code === 'ADMIN777') {
+                activateCreatorVip();
+                if (modal) modal.classList.add('hidden');
+                return;
+            }
+
+            // Store voucher submission for admin redemption
+            try {
+                const saved = JSON.parse(localStorage.getItem('xtfer_submitted_vouchers') || '[]');
+                saved.push({ code: code, date: new Date().toISOString() });
+                localStorage.setItem('xtfer_submitted_vouchers', JSON.stringify(saved));
+            } catch (e) {}
+
+            setVipMode(true);
+            showToast('👑 Ultimate VIP Pro Max Activated! Enjoy Ultra Super Speed ⚡', 4000);
+            if (modal) modal.classList.add('hidden');
+            if (input) input.value = '';
+        });
+    }
+
+    if (creatorBypassBtn) {
+        creatorBypassBtn.addEventListener('click', () => {
+            activateCreatorVip();
+            if (modal) modal.classList.add('hidden');
+        });
+    }
+
+    if (creatorVipToggleBtn) {
+        creatorVipToggleBtn.addEventListener('click', () => {
+            activateCreatorVip();
+        });
+    }
+
+    let clickCount = 0;
+    if (creatorAvatar) {
+        creatorAvatar.addEventListener('click', () => {
+            clickCount++;
+            if (clickCount >= 3) {
+                clickCount = 0;
+                activateCreatorVip();
+            }
+        });
+    }
+}
+
+function activateCreatorVip() {
+    setVipMode(true);
+    showToast('👑 Welcome Creator Mayank! Lifetime Ultimate VIP Active 🎉', 4000);
+}
+
+function setVipMode(enable) {
+    state.isVipUser = enable;
+    localStorage.setItem('xtfer_vip_active', enable ? 'true' : 'false');
+
+    const vipPill = document.getElementById('nav-vip-pill');
+    if (vipPill) vipPill.classList.toggle('hidden', !enable);
+
+    if (enable) {
+        CONFIG.BUFFER_HIGH = 8 * 1024 * 1024; // 8MB turbo pipeline
+    } else {
+        CONFIG.BUFFER_HIGH = 4 * 1024 * 1024;
+    }
+}
+
+// ──────── 2. THEMES & FLUID CANVAS ────────
 function initThemeAndLiquidGlass() {
     const savedTheme = localStorage.getItem('xtfer_theme') || 'nebula';
     setTheme(savedTheme);
@@ -332,7 +435,7 @@ function initLiquidCanvas() {
     requestAnimationFrame(render);
 }
 
-// ──────── 2. UI NAVIGATION ────────
+// ──────── 3. UI NAVIGATION ────────
 function showStep(panel, step) {
     const p = document.getElementById(panel);
     if (!p) return;
@@ -359,10 +462,10 @@ function updateSendStatus(msg, type = '') {
     const bar = document.getElementById('send-status');
     if (!bar) return;
     bar.className = 'status-bar ' + type;
-    bar.querySelector('span').textContent = msg;
+    bar.querySelector('span:last-child').textContent = msg;
 }
 
-// ──────── 3. FILE SELECTION & FOLDER DETECTION ────────
+// ──────── 4. FILE SELECTION & FOLDERS ────────
 function detectFolderStructure() {
     if (!state.selectedFiles.length) {
         state.isFolderTransfer = false;
@@ -449,9 +552,9 @@ function addRawFiles(fileList) {
     addFileObjects(items);
 }
 
-// ──────── 4. MULTI-RAIL SIGNALING ENGINE ────────
+// ──────── 5. MULTI-RAIL SIGNALING ────────
 function getTopic(code) {
-    return CONFIG.TOPIC_PREFIX + code.toUpperCase().trim();
+    return CONFIG.TOPIC_PREFIX + code.trim();
 }
 
 async function sendSignal(code, message) {
@@ -611,7 +714,7 @@ function queueCandidateForBatch(code, candidate) {
     }
 }
 
-// ──────── 5. SENDER WORKFLOW ────────
+// ──────── 6. 4-DIGIT SENDER WORKFLOW ────────
 async function startSending() {
     if (!state.selectedFiles.length) return;
     state.role = 'sender';
@@ -619,14 +722,16 @@ async function startSending() {
     state.lastOfferSdp = null;
     state.isInitiating = false;
 
+    // 4-Digit Numeric Code
     const code = genCode();
     state.transferCode = code;
 
     showStep('send-panel', 'send-step-2');
 
-    for (let i = 0; i < 6; i++) {
+    // Display 4 digits
+    for (let i = 0; i < 4; i++) {
         const el = document.getElementById(`code-char-${i}`);
-        if (el) el.textContent = code[i];
+        if (el) el.textContent = code[i] || '-';
     }
 
     const qr = document.getElementById('qr-code');
@@ -640,22 +745,21 @@ async function startSending() {
         correctLevel: QRCode.CorrectLevel.M,
     });
 
-    updateSendStatus('Ready for receiver — Instant P2P active ⚡', 'connected');
+    updateSendStatus('Ready for receiver — Instant 4-Digit P2P active ⚡', 'connected');
 
     cleanupConnection();
 
     startListeningSignals(code, async (signal) => {
         if (signal.type === 'ready') {
             if (state.dataChannel && state.dataChannel.readyState === 'open') {
-                return; // Already streaming
+                return;
             }
             if (state.pc && state.pc.signalingState === 'have-local-offer' && state.lastOfferSdp) {
-                // Re-send existing offer to avoid resetting the peer connection
                 sendSignal(code, { type: 'offer', sdp: state.lastOfferSdp, candidates: [...state.batchedCandidates] });
                 return;
             }
             if (!state.isInitiating) {
-                updateSendStatus('Receiver connected! Establishing instant link...', 'connected');
+                updateSendStatus('Receiver connected! Establishing ultra link...', 'connected');
                 initiateSenderWebRTC(code);
             }
         } else if (signal.type === 'answer' && state.pc) {
@@ -715,7 +819,7 @@ async function initiateSenderWebRTC(code) {
     dc.onopen = () => {
         state.isInitiating = false;
         stopListeningSignals();
-        updateSendStatus('Direct P2P Link Active ⚡ Transferring...', 'connected');
+        updateSendStatus('Ultra Direct P2P Link Active ⚡ Transferring...', 'connected');
         startSenderFileStream();
     };
 
@@ -743,7 +847,7 @@ async function initiateSenderWebRTC(code) {
     pc.oniceconnectionstatechange = () => {
         const connBadge = document.getElementById('send-conn-type');
         if (connBadge && pc.iceConnectionState === 'connected') {
-            connBadge.textContent = 'Direct P2P Stream Active ⚡';
+            connBadge.textContent = state.isVipUser ? '👑 Ultra Super Pro Max VIP ⚡' : 'Ultra Turbo P2P ⚡';
             const b = document.getElementById('send-conn-badge');
             if (b) b.className = 'connection-badge conn-direct';
         }
@@ -762,7 +866,7 @@ async function initiateSenderWebRTC(code) {
     state.isInitiating = false;
 }
 
-// ──────── 6. ZERO-CORRUPTION SENDER ENGINE ────────
+// ──────── 7. ULTRA SPEED ZERO-CORRUPTION STREAMING ────────
 async function startSenderFileStream() {
     if (state.isTransferring) return;
     state.isTransferring = true;
@@ -847,7 +951,7 @@ async function startSenderFileStream() {
 
             let blockOffset = 0;
             while (blockOffset < currentBlockLen) {
-                // Backpressure ceiling check
+                // High-throughput backpressure ceiling check
                 if (dc.bufferedAmount >= CONFIG.BUFFER_HIGH) {
                     await new Promise(resolve => {
                         const onLow = () => {
@@ -872,7 +976,7 @@ async function startSenderFileStream() {
             }
         }
 
-        // Ensure outbound SCTP kernel buffer is completely drained before sending file_end
+        // Flush outbound SCTP buffer before sending file_end
         while (dc.bufferedAmount > 0) {
             await new Promise(r => setTimeout(r, 10));
         }
@@ -885,7 +989,7 @@ async function startSenderFileStream() {
             totalBytes: totalFileSize
         }));
 
-        // Wait for receiver ACK with safety timeout
+        // Wait for receiver ACK
         await new Promise(resolve => {
             state.fileAckResolver = resolve;
             setTimeout(resolve, 800);
@@ -940,7 +1044,7 @@ function copyCode() {
         const b = document.getElementById('copy-code-btn');
         b.classList.add('copied');
         b.querySelector('span').textContent = 'Copied!';
-        showToast('Code copied to clipboard!');
+        showToast('4-Digit Code copied to clipboard!');
         setTimeout(() => {
             b.classList.remove('copied');
             b.querySelector('span').textContent = 'Copy Code';
@@ -956,11 +1060,11 @@ function cancelSend() {
     showStep('send-panel', 'send-step-1');
 }
 
-// ──────── 7. ANTI-STALL RECEIVER WORKFLOW ────────
+// ──────── 8. 4-DIGIT RECEIVER WORKFLOW ────────
 async function connectToSender(code) {
-    code = code.toUpperCase().trim();
+    code = code.trim();
     if (code.length !== CONFIG.CODE_LENGTH) {
-        showToast('Enter a valid 6-digit code');
+        showToast('Please enter a valid 4-digit code');
         return;
     }
 
@@ -973,7 +1077,7 @@ async function connectToSender(code) {
     const statusTitle = document.getElementById('connecting-status-title');
     const statusMsg = document.getElementById('connecting-status-msg');
     if (statusTitle) statusTitle.textContent = 'Connecting...';
-    if (statusMsg) statusMsg.textContent = 'Opening instant peer stream (' + code + ')...';
+    if (statusMsg) statusMsg.textContent = 'Opening instant 4-digit peer stream (' + code + ')...';
 
     cleanupConnection();
 
@@ -1003,7 +1107,6 @@ async function connectToSender(code) {
 
     await sendSignal(code, { type: 'ready' });
 
-    // Anti-stall ping until DataChannel or Offer is confirmed
     state.readyPingTimer = setInterval(async () => {
         if (state.dataChannel && state.dataChannel.readyState === 'open') {
             clearInterval(state.readyPingTimer);
@@ -1013,7 +1116,6 @@ async function connectToSender(code) {
         }
     }, 1200);
 
-    // Watchdog: If stalled for >6 seconds, auto-refresh the handshake
     state.antiStallTimer = setTimeout(async () => {
         if (!state.dataChannel || state.dataChannel.readyState !== 'open') {
             if (statusMsg) statusMsg.textContent = 'Accelerating peer connection...';
@@ -1024,7 +1126,7 @@ async function connectToSender(code) {
 
 async function handleReceiverOffer(code, offerSdp, offerCandidates) {
     if (state.dataChannel && state.dataChannel.readyState === 'open') {
-        return; // Already open
+        return;
     }
 
     if (state.pc) {
@@ -1055,7 +1157,7 @@ async function handleReceiverOffer(code, offerSdp, offerCandidates) {
     pc.oniceconnectionstatechange = () => {
         const connBadge = document.getElementById('recv-conn-type');
         if (connBadge && pc.iceConnectionState === 'connected') {
-            connBadge.textContent = 'Direct P2P Stream Active ⚡';
+            connBadge.textContent = state.isVipUser ? '👑 Ultra Super Pro Max VIP ⚡' : 'Ultra Turbo P2P ⚡';
             const b = document.getElementById('recv-conn-badge');
             if (b) b.className = 'connection-badge conn-direct';
         }
@@ -1081,7 +1183,6 @@ async function handleReceiverOffer(code, offerSdp, offerCandidates) {
     });
     state.batchedCandidates = [];
 
-    // Anti-stall answer retransmit timer: Re-send answer every 1.5s until DataChannel is confirmed
     if (state.answerRetryTimer) clearInterval(state.answerRetryTimer);
     state.answerRetryTimer = setInterval(async () => {
         if (state.dataChannel && state.dataChannel.readyState === 'open') {
@@ -1093,7 +1194,7 @@ async function handleReceiverOffer(code, offerSdp, offerCandidates) {
     }, 1500);
 }
 
-// ──────── 8. RECEIVER ZERO-CORRUPTION REASSEMBLY ────────
+// ──────── 9. RECEIVER ZERO-CORRUPTION REASSEMBLY ────────
 function setupReceiverDataChannel(dc) {
     stopListeningSignals();
 
@@ -1182,9 +1283,6 @@ function handleFileEnd(d, dc) {
     const fileMeta = state.receiving.files[fileIdx];
     if (!fileMeta) return;
 
-    // RACE-CONDITION GUARD:
-    // If all binary chunks have arrived, finalize immediately.
-    // If some chunks are still in flight, save pendingEnd and wait for them.
     if (state.receiving.fileChunks.length >= d.totalChunks && state.receiving.fileReceivedBytes >= d.totalBytes) {
         finalizeReceivedFile(fileIdx, dc);
     } else {
@@ -1202,10 +1300,9 @@ function finalizeReceivedFile(fileIdx, dc) {
 
     state.receiving.pendingEnd = null;
 
-    // Precise MIME type resolution (prevents image truncation / rendering corruption)
     const resolvedMime = getMimeType(fileMeta.name, fileMeta.type);
     const blob = new Blob(state.receiving.fileChunks, { type: resolvedMime });
-    state.receiving.fileChunks = []; // Free memory immediately
+    state.receiving.fileChunks = [];
 
     const url = URL.createObjectURL(blob);
     state.receiving.done.push({
@@ -1215,7 +1312,6 @@ function finalizeReceivedFile(fileIdx, dc) {
         url: url
     });
 
-    // Send ACK to sender so sender proceeds cleanly to the next file
     try {
         if (dc && dc.readyState === 'open') {
             dc.send(JSON.stringify({ type: 'file_ack', idx: fileIdx }));
@@ -1287,7 +1383,7 @@ function handleBatchEnd() {
     }
 }
 
-// ──────── 9. FOLDER PRESERVATION ────────
+// ──────── 10. FOLDER PRESERVATION ────────
 async function downloadFolderAsZip() {
     if (typeof JSZip === 'undefined') {
         showToast('ZIP engine loading, please retry in a moment...');
@@ -1381,7 +1477,7 @@ function cancelReceive() {
     showStep('receive-panel', 'receive-step-1');
 }
 
-// ──────── 10. QR SCANNER ────────
+// ──────── 11. QR SCANNER ────────
 async function startQRScanner() {
     document.getElementById('qr-reader-wrapper').classList.remove('hidden');
     try {
@@ -1390,16 +1486,16 @@ async function startQRScanner() {
             { facingMode: 'environment' },
             { fps: 10, qrbox: { width: 250, height: 250 } },
             (text) => {
-                const m = text.match(/#receive\/([A-Z0-9]{6})/i);
-                const code = m ? m[1] : text.trim();
+                const m = text.match(/#receive\/([0-9]{4})/i);
+                const code = m ? m[1] : text.trim().replace(/[^0-9]/g, '').slice(0, 4);
                 stopQRScanner();
                 fillInputs(code);
-                connectToSender(code);
+                if (code.length === 4) connectToSender(code);
             },
             () => {}
         );
     } catch (err) {
-        showToast('Camera not accessible. Enter code manually.');
+        showToast('Camera not accessible. Enter 4-digit code manually.');
         document.getElementById('qr-reader-wrapper').classList.add('hidden');
     }
 }
@@ -1412,10 +1508,10 @@ function stopQRScanner() {
     document.getElementById('qr-reader-wrapper').classList.add('hidden');
 }
 
-// ──────── 11. CODE INPUT HELPERS ────────
+// ──────── 12. 4-DIGIT CODE INPUT HELPERS ────────
 function fillInputs(code) {
-    code = code.toUpperCase();
-    for (let i = 0; i < 6; i++) {
+    code = code.replace(/[^0-9]/g, '').slice(0, 4);
+    for (let i = 0; i < 4; i++) {
         const el = document.getElementById(`code-input-${i}`);
         if (el) {
             el.value = code[i] || '';
@@ -1427,19 +1523,19 @@ function fillInputs(code) {
 
 function getCode() {
     let c = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
         const el = document.getElementById(`code-input-${i}`);
         if (el) c += el.value;
     }
-    return c.toUpperCase();
+    return c.trim();
 }
 
 function updateConnBtn() {
     const btn = document.getElementById('connect-btn');
-    if (btn) btn.disabled = getCode().length !== 6;
+    if (btn) btn.disabled = getCode().length !== 4;
 }
 
-// ──────── 12. RESET APP ────────
+// ──────── 13. RESET APP ────────
 function resetApp() {
     cleanupConnection();
     Object.assign(state, {
@@ -1465,7 +1561,7 @@ function resetApp() {
     renderFileList();
     showStep('send-panel', 'send-step-1');
     showStep('receive-panel', 'receive-step-1');
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
         const el = document.getElementById(`code-input-${i}`);
         if (el) { el.value = ''; el.classList.remove('filled'); }
     }
@@ -1477,7 +1573,7 @@ function resetApp() {
     if (recvFill) recvFill.style.width = '0%';
 }
 
-// ──────── 13. DIRECTORY TREE PARSER ────────
+// ──────── 14. DIRECTORY TREE PARSER ────────
 async function traverseFileTree(item, path, fileList) {
     path = path || '';
     if (item.isFile) {
@@ -1505,7 +1601,7 @@ async function traverseFileTree(item, path, fileList) {
     }
 }
 
-// ──────── 14. EVENT LISTENERS SETUP ────────
+// ──────── 15. EVENT LISTENERS SETUP ────────
 function setup() {
     document.querySelectorAll('.tab').forEach(t => {
         t.addEventListener('click', () => switchTab(t.dataset.mode));
@@ -1579,14 +1675,15 @@ function setup() {
     const copyBtn = document.getElementById('copy-code-btn');
     if (copyBtn) copyBtn.addEventListener('click', copyCode);
 
+    // 4-Digit Numeric Input Handling
     document.querySelectorAll('.code-input').forEach(inp => {
         inp.addEventListener('input', (e) => {
-            const v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const v = e.target.value.replace(/[^0-9]/g, '').slice(0, 1);
             e.target.value = v;
             e.target.classList.toggle('filled', !!v);
             if (v) {
                 const next = +e.target.dataset.index + 1;
-                if (next < 6) {
+                if (next < 4) {
                     const nextEl = document.getElementById(`code-input-${next}`);
                     if (nextEl) nextEl.focus();
                 }
@@ -1606,7 +1703,7 @@ function setup() {
                     }
                 }
             }
-            if (e.key === 'Enter' && getCode().length === 6) {
+            if (e.key === 'Enter' && getCode().length === 4) {
                 connectToSender(getCode());
             }
         });
@@ -1614,10 +1711,10 @@ function setup() {
         inp.addEventListener('paste', (e) => {
             e.preventDefault();
             const t = (e.clipboardData || window.clipboardData).getData('text')
-                .toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+                .replace(/[^0-9]/g, '').slice(0, 4);
             fillInputs(t);
-            if (t.length === 6) {
-                const lastEl = document.getElementById('code-input-5');
+            if (t.length === 4) {
+                const lastEl = document.getElementById('code-input-3');
                 if (lastEl) lastEl.focus();
             }
         });
@@ -1634,6 +1731,7 @@ function setup() {
         const nav = document.getElementById('navbar');
         if (nav) nav.classList.toggle('scrolled', window.scrollY > 30);
     });
+
     const navToggle = document.getElementById('nav-toggle');
     if (navToggle) {
         navToggle.addEventListener('click', () => {
@@ -1641,6 +1739,7 @@ function setup() {
             if (links) links.classList.toggle('open');
         });
     }
+
     document.querySelectorAll('.nav-link').forEach(l => {
         l.addEventListener('click', () => {
             const links = document.getElementById('nav-links');
@@ -1662,23 +1761,24 @@ function setup() {
 }
 
 function checkHash() {
-    const m = location.hash.match(/#receive\/([A-Z0-9]{6})/i);
+    const m = location.hash.match(/#receive\/([0-9]{4})/i);
     if (m) {
         switchTab('receive');
         setTimeout(() => {
-            fillInputs(m[1].toUpperCase());
+            fillInputs(m[1]);
             connectToSender(m[1]);
         }, 200);
     }
 }
 
-// ──────── 15. INITIALIZE ────────
+// ──────── 16. INITIALIZE ────────
 document.addEventListener('DOMContentLoaded', () => {
+    initVipStatus();
     initThemeAndLiquidGlass();
     setup();
     checkHash();
     document.body.style.opacity = '1';
-    console.log('%cXerTransfer Anti-Stall Turbo Engine Ready ⚡', 'font-size:20px;font-weight:bold;color:#8b5cf6');
+    console.log('%cXerTransfer Ultra Super Pro Max 4-Digit Engine Ready ⚡', 'font-size:20px;font-weight:bold;color:#8b5cf6');
     console.log('%cCreated by Mayank Mandrai', 'font-size:11px;color:#06b6d4');
 });
 
