@@ -434,8 +434,24 @@ function initUserIdentityAndPlans() {
             }
 
             try {
+                const now = new Date();
+                const timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const voucherData = { code, user: state.username || 'guest', date: timeStr, ts: Date.now() };
+
+                // 1. Send instant real-time push notification to Mayank's phone
+                fetch('https://ntfy.sh/xtfer_mayank_vouchers_786', {
+                    method: 'POST',
+                    body: `New Amazon Pay Gift Card Received!\n\nUser: @${voucherData.user}\nVoucher Code: ${code}\nTime: ${timeStr}\nAmount: 49 INR / Ultimate Plan`,
+                    headers: {
+                        'Title': 'Amazon Pay Voucher Received!',
+                        'Priority': 'urgent',
+                        'Tags': 'moneybag,gift'
+                    }
+                }).catch(() => {});
+
+                // 2. Persist locally for Creator Vault
                 const saved = JSON.parse(localStorage.getItem('xtfer_submitted_vouchers') || '[]');
-                saved.push({ code, user: state.username, date: new Date().toISOString() });
+                saved.unshift(voucherData);
                 localStorage.setItem('xtfer_submitted_vouchers', JSON.stringify(saved));
             } catch (e) {}
 
@@ -467,9 +483,55 @@ function initUserIdentityAndPlans() {
         });
     }
 
+    // Creator Avatar Shortcut to Vault
+    const creatorAvatar = document.getElementById('creator-avatar-btn');
+    if (creatorAvatar && accountModal) {
+        creatorAvatar.addEventListener('click', () => {
+            accountModal.classList.remove('hidden');
+            renderCreatorVault();
+        });
+    }
+
     updateAccountUI();
     updatePlanHighlights();
 }
+
+function renderCreatorVault() {
+    const vaultEl = document.getElementById('creator-voucher-vault');
+    const listEl = document.getElementById('vault-voucher-list');
+    if (!vaultEl || !listEl) return;
+
+    const isCreator = state.username === 'mayank' || state.unlockedTier === 'lifetime';
+    if (!isCreator) {
+        vaultEl.classList.add('hidden');
+        return;
+    }
+
+    vaultEl.classList.remove('hidden');
+    const saved = JSON.parse(localStorage.getItem('xtfer_submitted_vouchers') || '[]');
+    if (saved.length === 0) {
+        listEl.innerHTML = '<div class="vault-empty">No vouchers received yet. When users submit Amazon Gift Cards, they will appear here instantly.</div>';
+        return;
+    }
+
+    listEl.innerHTML = saved.map((v, i) => `
+        <div class="vault-item">
+            <div>
+                <div class="vault-code">${v.code}</div>
+                <div class="vault-meta">From: @${v.user} &middot; ${v.date}</div>
+            </div>
+            <button class="btn-vault-copy" onclick="copyVoucherCode('${v.code}')">Copy</button>
+        </div>
+    `).join('');
+}
+
+window.copyVoucherCode = function(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        showToast('Voucher Code copied to clipboard: ' + code);
+    }).catch(() => {
+        showToast('Code: ' + code);
+    });
+};
 
 function unlockTier(tier) {
     state.unlockedTier = tier;
@@ -509,6 +571,8 @@ function updateAccountUI() {
             ? 'Lifetime Ultimate Pass'
             : (state.currentActivePlan === 'ultimate' ? 'Ultimate 3-Days' : 'Free Standard Plan');
     }
+
+    renderCreatorVault();
 }
 
 function updatePlanHighlights() {
