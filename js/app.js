@@ -8,9 +8,23 @@ document.addEventListener('DOMContentLoaded', () => {
   let p2p = null;
   let fileQueue = [];
 
-  // Initialize P2P Client
+  // Reset button states helper
+  function resetActionButtons() {
+    if (ui.btnStartShare) {
+      ui.btnStartShare.disabled = false;
+      ui.btnStartShare.textContent = 'Generate PIN & QR Code';
+    }
+    if (ui.btnConnectReceiver) {
+      ui.btnConnectReceiver.disabled = false;
+      ui.btnConnectReceiver.textContent = 'Connect & Receive';
+    }
+  }
+
+  // Initialize or re-create P2P instance
   function createP2PInstance() {
-    if (p2p) p2p.destroy();
+    if (p2p) {
+      p2p.destroy();
+    }
 
     p2p = new XerP2P({
       onStatus: (msg, statusClass) => {
@@ -23,18 +37,20 @@ document.addEventListener('DOMContentLoaded', () => {
         ui.addReceivedFile(meta, blob);
       },
       onComplete: () => {
-        ui.showToast('Transfer completed successfully!');
+        ui.showToast('Transfer completed successfully');
+        resetActionButtons();
       },
       onError: (err) => {
-        ui.showToast(`Error: ${err}`);
+        ui.showToast(err);
         ui.updateStatus('Connection Error', 'error');
+        resetActionButtons();
       }
     });
 
     return p2p;
   }
 
-  // --- Tab Navigation ---
+  // --- Tab Switching ---
   ui.senderTab.addEventListener('click', () => {
     ui.senderTab.classList.add('active');
     ui.receiverTab.classList.remove('active');
@@ -67,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.renderFilesList(fileQueue);
   }
 
-  // --- Drag & Drop ---
+  // --- Drag & Drop Handlers ---
   const dropzone = ui.dropzone;
   ['dragenter', 'dragover'].forEach(eventName => {
     dropzone.addEventListener(eventName, (e) => {
@@ -88,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
   dropzone.addEventListener('drop', async (e) => {
     const items = e.dataTransfer.items;
     if (items) {
-      const files = [];
       const queue = [];
       for (let i = 0; i < items.length; i++) {
         const item = items[i].webkitGetAsEntry ? items[i].webkitGetAsEntry() : null;
@@ -107,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Recursive folder reader for drop events
   async function traverseFileTree(item, path = '') {
     if (item.isFile) {
       return new Promise((resolve) => {
@@ -132,10 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return [];
   }
 
-  // --- Sender Action: Start Sharing ---
+  // --- Sender: Generate PIN & Share ---
   ui.btnStartShare.addEventListener('click', async () => {
     if (fileQueue.length === 0) {
-      ui.showToast('Kripya pehle file ya folder chune!');
+      ui.showToast('Please select files or folders first');
       return;
     }
 
@@ -147,37 +161,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const pin = await client.startSender();
       ui.displaySenderPin(pin);
 
-      // Generate Shareable QR URL
       const shareUrl = `${window.location.origin}${window.location.pathname}?pin=${pin}`;
       ui.renderQRCode(shareUrl);
 
-      // Setup connection trigger to auto-stream
+      // Auto-stream to receiver when connected
       const originalHandler = client.setupConnectionHandlers.bind(client);
       client.setupConnectionHandlers = () => {
         originalHandler();
-        // Send files automatically once receiver is connected
         client.connection.on('open', () => {
           setTimeout(() => {
             client.sendFiles(fileQueue);
-          }, 600);
+          }, 500);
         });
       };
 
-      ui.btnStartShare.textContent = 'Waiting for Connection...';
-      ui.showToast(`PIN Generated: ${pin}`);
+      ui.btnStartShare.textContent = 'Waiting for Receiver...';
+      ui.showToast(`Session active: PIN ${pin}`);
     } catch (err) {
-      ui.btnStartShare.disabled = false;
-      ui.btnStartShare.textContent = 'Generate PIN & QR';
-      ui.showToast('Error creating P2P session');
-      console.error(err);
+      resetActionButtons();
+      ui.showToast('Failed to start sender session: ' + err.message);
     }
   });
 
-  // --- Receiver Action: Connect with 4-Digit PIN ---
+  // --- Receiver: Connect with PIN ---
   ui.btnConnectReceiver.addEventListener('click', async () => {
     const pin = ui.getReceiverPin();
     if (!pin || pin.length !== 4) {
-      ui.showToast('Kripya 4-digit PIN enter kare!');
+      ui.showToast('Please enter a 4-digit PIN');
       return;
     }
 
@@ -192,16 +202,15 @@ document.addEventListener('DOMContentLoaded', () => {
       ui.updateStatus(`Connecting to PIN: ${pin}...`, 'connecting');
 
       await client.startReceiver(pin);
-      ui.showToast(`Connecting to sender (${pin})...`);
+      ui.showToast(`Searching for PIN ${pin}...`);
     } catch (err) {
-      ui.btnConnectReceiver.disabled = false;
-      ui.btnConnectReceiver.textContent = 'Connect & Receive';
-      ui.showToast('Failed to connect to sender');
-      console.error(err);
+      resetActionButtons();
+      ui.showToast('Connection failed: ' + err.message);
+      ui.updateStatus('Connection failed', 'error');
     }
   }
 
-  // --- Check URL Params for QR Code auto-pairing ---
+  // --- Auto-connect if PIN is in query parameter ---
   const urlParams = new URLSearchParams(window.location.search);
   const pinFromUrl = urlParams.get('pin');
   if (pinFromUrl && pinFromUrl.length === 4) {
@@ -209,6 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.setReceiverPin(pinFromUrl);
     setTimeout(() => {
       connectWithPin(pinFromUrl);
-    }, 400);
+    }, 500);
   }
 });

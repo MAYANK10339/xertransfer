@@ -1,7 +1,7 @@
 /**
  * xerTransfer - UI Controller
  * Created by: Mayank Mandrai
- * Handles Themes, Glass Toggle, QR Code, Drag & Drop, and Transfer Progress
+ * Handles Themes, Glass Toggle, QR Code, Drag & Drop, and Transfer Progress (Emoji-Free)
  */
 
 class XerUI {
@@ -61,7 +61,6 @@ class XerUI {
 
   // --- Themes & Glassmorphism ---
   initThemeAndGlass() {
-    // 1. Theme setup
     this.applyTheme(this.currentTheme);
     if (this.themeSelect) {
       this.themeSelect.value = this.currentTheme;
@@ -70,7 +69,6 @@ class XerUI {
       });
     }
 
-    // 2. Glass Toggle setup
     this.applyGlass(this.isGlassOn);
     if (this.glassToggleBtn) {
       this.glassToggleBtn.addEventListener('click', () => {
@@ -83,18 +81,17 @@ class XerUI {
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('xer_theme', theme);
-    this.showToast(`Theme changed to ${theme.toUpperCase()}`);
   }
 
   applyGlass(isOn) {
     this.isGlassOn = isOn;
     if (isOn) {
       document.body.classList.remove('glass-off');
-      this.glassToggleBtn.innerHTML = '✨ Glass: <b>ON</b>';
+      this.glassToggleBtn.innerHTML = 'Glass: <b>ON</b>';
       this.glassToggleBtn.classList.add('glass-toggle-active');
     } else {
       document.body.classList.add('glass-off');
-      this.glassToggleBtn.innerHTML = '⚡ Glass: <b>OFF</b> (Solid)';
+      this.glassToggleBtn.innerHTML = 'Glass: <b>OFF</b>';
       this.glassToggleBtn.classList.remove('glass-toggle-active');
     }
     localStorage.setItem('xer_glass', isOn);
@@ -102,7 +99,7 @@ class XerUI {
 
   toggleGlass() {
     this.applyGlass(!this.isGlassOn);
-    this.showToast(this.isGlassOn ? 'Liquid Glass UI Enabled' : 'Performance Solid Mode Enabled');
+    this.showToast(this.isGlassOn ? 'Liquid Glass UI active' : 'Solid performance mode active');
   }
 
   // --- 4-Digit Receiver Input Auto Advance ---
@@ -149,18 +146,16 @@ class XerUI {
     if (!this.qrContainer) return;
     this.qrContainer.innerHTML = '';
 
-    // If QRCode library is available
     if (typeof QRCode !== 'undefined') {
       new QRCode(this.qrContainer, {
         text: text,
         width: 170,
         height: 170,
-        colorDark: '#0f172a',
+        colorDark: '#030712',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
       });
     } else {
-      // Fallback API QR Image
       const qrImg = document.createElement('img');
       qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(text)}`;
       qrImg.alt = 'Scan QR Code';
@@ -189,18 +184,20 @@ class XerUI {
       const pathLabel = file.webkitRelativePath || file.name;
       item.innerHTML = `
         <div class="file-meta">
-          <span>📁</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary); flex-shrink: 0;">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
           <div>
             <div class="file-name" title="${pathLabel}">${pathLabel}</div>
             <div class="file-size">${this.formatBytes(file.size)}</div>
           </div>
         </div>
-        <button class="remove-file-btn" data-index="${index}" title="Remove">✕</button>
+        <button class="remove-file-btn" data-index="${index}" title="Remove">Remove</button>
       `;
       this.selectedFilesList.appendChild(item);
     });
 
-    // Remove buttons
     this.selectedFilesList.querySelectorAll('.remove-file-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.getAttribute('data-index'));
@@ -232,20 +229,22 @@ class XerUI {
 
     item.innerHTML = `
       <div class="file-meta">
-        <span>✅</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary); flex-shrink: 0;">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
         <div>
           <div class="file-name" title="${fileName}">${fileName}</div>
           <div class="file-size">${this.formatBytes(meta.size)}</div>
         </div>
       </div>
-      <a href="${downloadUrl}" download="${meta.name}" class="btn-primary" style="padding: 6px 14px; font-size: 0.8rem; text-decoration: none;">
-        Save ⬇
+      <a href="${downloadUrl}" download="${meta.name}" class="btn-primary" style="padding: 6px 16px; font-size: 0.82rem; text-decoration: none;">
+        Download
       </a>
     `;
 
     this.receivedFilesList.appendChild(item);
 
-    // Trigger auto-download if single file or direct action
+    // Auto-trigger download
     const autoLink = document.createElement('a');
     autoLink.href = downloadUrl;
     autoLink.download = meta.name;
@@ -273,7 +272,7 @@ class XerUI {
     }, 3200);
   }
 
-  // --- Utility Formatters ---
+  // --- Format Bytes ---
   formatBytes(bytes) {
     if (bytes === 0) return '0 B';
     const k = 1024;
