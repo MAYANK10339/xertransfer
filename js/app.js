@@ -79,7 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function appendFiles(newFiles) {
-    fileQueue = fileQueue.concat(newFiles);
+    const formatted = newFiles.map(file => {
+      // Ensure webkitRelativePath is preserved
+      const relPath = file.webkitRelativePath || file.relativePath || file.name;
+      file.relativePath = relPath;
+      return file;
+    });
+
+    fileQueue = fileQueue.concat(formatted);
     ui.renderFilesList(fileQueue);
   }
 

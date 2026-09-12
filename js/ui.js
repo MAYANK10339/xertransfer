@@ -220,12 +220,31 @@ class XerUI {
 
   // --- Add Received File to List ---
   addReceivedFile(meta, blob) {
+    if (!this.receivedFiles) this.receivedFiles = [];
+    this.receivedFiles.push({ meta, blob });
+
     this.receivedFilesSection.style.display = 'block';
+    
+    // Check if we have multiple files or folder structure to show "Download Folder ZIP" button
+    const hasSubfolders = this.receivedFiles.some(f => f.meta.relativePath && f.meta.relativePath.includes('/'));
+    let zipBtn = document.getElementById('btnDownloadZip');
+    if ((this.receivedFiles.length > 1 || hasSubfolders) && !zipBtn) {
+      zipBtn = document.createElement('button');
+      zipBtn.id = 'btnDownloadZip';
+      zipBtn.className = 'btn-primary';
+      zipBtn.style.marginBottom = '14px';
+      zipBtn.style.width = '100%';
+      zipBtn.style.justifyContent = 'center';
+      zipBtn.textContent = 'Download Entire Folder Structure (.ZIP)';
+      zipBtn.addEventListener('click', () => this.downloadAllAsZip());
+      this.receivedFilesList.parentNode.insertBefore(zipBtn, this.receivedFilesList);
+    }
+
     const item = document.createElement('div');
     item.className = 'file-item';
 
     const downloadUrl = URL.createObjectURL(blob);
-    const fileName = meta.relativePath || meta.name;
+    const displayPath = meta.relativePath || meta.name;
 
     item.innerHTML = `
       <div class="file-meta">
@@ -233,7 +252,7 @@ class XerUI {
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
         <div>
-          <div class="file-name" title="${fileName}">${fileName}</div>
+          <div class="file-name" title="${displayPath}">${displayPath}</div>
           <div class="file-size">${this.formatBytes(meta.size)}</div>
         </div>
       </div>
@@ -244,15 +263,52 @@ class XerUI {
 
     this.receivedFilesList.appendChild(item);
 
-    // Auto-trigger download
-    const autoLink = document.createElement('a');
-    autoLink.href = downloadUrl;
-    autoLink.download = meta.name;
-    document.body.appendChild(autoLink);
-    autoLink.click();
-    document.body.removeChild(autoLink);
+    // Auto-trigger single file download if not a folder collection
+    if (!hasSubfolders && this.receivedFiles.length === 1) {
+      const autoLink = document.createElement('a');
+      autoLink.href = downloadUrl;
+      autoLink.download = meta.name;
+      document.body.appendChild(autoLink);
+      autoLink.click();
+      document.body.removeChild(autoLink);
+    }
 
-    this.showToast(`Received: ${meta.name}`);
+    this.showToast(`Received: ${displayPath}`);
+  }
+
+  // --- Download Entire Folder as ZIP with Sub-folders ---
+  async downloadAllAsZip() {
+    if (!window.JSZip || !this.receivedFiles || this.receivedFiles.length === 0) {
+      this.showToast('No files to zip');
+      return;
+    }
+
+    const zipBtn = document.getElementById('btnDownloadZip');
+    if (zipBtn) {
+      zipBtn.disabled = true;
+      zipBtn.textContent = 'Generating Folder ZIP...';
+    }
+
+    const zip = new JSZip();
+    this.receivedFiles.forEach(item => {
+      const fullPath = item.meta.relativePath || item.meta.name;
+      zip.file(fullPath, item.blob);
+    });
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const downloadUrl = URL.createObjectURL(zipBlob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'xertransfer_folder.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    if (zipBtn) {
+      zipBtn.disabled = false;
+      zipBtn.textContent = 'Download Entire Folder Structure (.ZIP)';
+    }
+    this.showToast('Folder downloaded as ZIP');
   }
 
   // --- Status Badge ---
