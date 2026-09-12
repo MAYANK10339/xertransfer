@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>xerTransfer - Direct P2P File & Folder Sharing</title>
-  <meta name="description" content="xerTransfer: Fast, secure, zero-limit peer-to-peer file and folder transfer directly via WebRTC. Made by Mayank Mandrai.">
+  <title>xerTransfer - Direct P2P File &amp; Folder Sharing</title>
+  <meta name="description" content="Fast, secure, zero-limit peer-to-peer file and folder transfer directly via WebRTC. Created by Mayank Mandrai.">
   
   <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- Ambient Glass Glow Elements -->
+  <!-- Ambient Blue Glow Elements -->
   <div class="ambient-glow">
     <div class="blob-1"></div>
     <div class="blob-2"></div>
@@ -29,7 +29,11 @@
     <!-- Header Navigation -->
     <header class="glass-nav">
       <div class="logo-container">
-        <div class="logo-icon">⚡</div>
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+          </svg>
+        </div>
         <div class="brand-info">
           <h1>xerTransfer</h1>
           <span class="creator-tag">By Mayank Mandrai</span>
@@ -38,19 +42,19 @@
 
       <!-- Theme & Glass Controls -->
       <div class="header-controls">
-        <button id="glassToggleBtn" class="control-btn glass-toggle-active" title="Toggle Glass Effect for Performance">
-          ✨ Glass: <b>ON</b>
+        <button id="glassToggleBtn" class="control-btn glass-toggle-active" title="Toggle Glass Effect">
+          Glass: <b>ON</b>
         </button>
 
         <select id="themeSelect" class="theme-select" title="Switch Color Theme">
-          <option value="dark">🌙 Dark</option>
-          <option value="light">☀️ Light</option>
-          <option value="neon">🔮 Neon</option>
+          <option value="dark">Dark Theme</option>
+          <option value="light">Light Theme</option>
+          <option value="neon">Cyber Blue</option>
         </select>
       </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- Main Card -->
     <main class="glass-card">
       <!-- Status Badge -->
       <div class="status-badge" id="statusBadge">
@@ -61,10 +65,20 @@
       <!-- Mode Switcher (Sender / Receiver Tabs) -->
       <div class="mode-switch">
         <button class="tab-btn active" id="senderTab">
-          <span>📤</span> Send Files
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Send Files
         </button>
         <button class="tab-btn" id="receiverTab">
-          <span>📥</span> Receive Files
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Receive Files
         </button>
       </div>
 
@@ -72,20 +86,32 @@
       <section id="senderView" class="view-section active">
         <!-- Drag & Drop Zone -->
         <div class="dropzone" id="dropzone">
-          <div class="dropzone-icon">📁</div>
-          <div class="dropzone-text">Drag & Drop Files or Folders here</div>
-          <div class="dropzone-sub">Zero size limits • Direct P2P transfer • No cloud upload</div>
+          <div class="dropzone-icon">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+              <polyline points="12 10 12 16 16 16"></polyline>
+            </svg>
+          </div>
+          <div class="dropzone-text">Drag &amp; Drop Files or Folders here</div>
+          <div class="dropzone-sub">Zero size limits &bull; Direct P2P WebRTC &bull; No cloud upload</div>
           
           <div class="action-btn-group">
             <button type="button" class="btn-primary" onclick="document.getElementById('filePicker').click()">
-              📄 Choose Files
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              Choose Files
             </button>
             <button type="button" class="btn-secondary" onclick="document.getElementById('folderPicker').click()">
-              📂 Choose Folder
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Choose Folder
             </button>
           </div>
 
-          <!-- Hidden Input Elements -->
+          <!-- Hidden File Inputs -->
           <input type="file" id="filePicker" multiple style="display: none;">
           <input type="file" id="folderPicker" webkitdirectory directory multiple style="display: none;">
         </div>
@@ -100,14 +126,14 @@
 
         <div style="text-align: center; margin-top: 20px;">
           <button id="btnStartShare" class="btn-primary" style="display: none; padding: 12px 28px; font-size: 1rem;">
-            Generate PIN & QR Code 🚀
+            Generate PIN &amp; QR Code
           </button>
         </div>
 
         <!-- Pairing Section (PIN + QR) -->
         <div id="pairingSection" class="pairing-section">
-          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Receiver ko ye 4-Digit PIN dein:</h3>
-          <p style="font-size: 0.82rem; color: var(--text-secondary);">Ya receiver camera se neeche diya gaya QR scan kare</p>
+          <h3 style="font-size: 1.15rem; margin-bottom: 6px; font-weight: 700;">Receiver PIN Code:</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Enter this 4-digit PIN on the receiver device or scan the QR code</p>
           
           <div class="pin-display-wrapper">
             <div class="pin-code-container">
@@ -127,8 +153,8 @@
       <!-- RECEIVER VIEW -->
       <section id="receiverView" class="view-section">
         <div class="receiver-form">
-          <h3 style="font-size: 1.2rem; font-weight: 600;">Sender ka 4-Digit PIN daalein</h3>
-          <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct WebRTC connection banega aur transfer shuru ho jayega</p>
+          <h3 style="font-size: 1.25rem; font-weight: 700;">Enter 4-Digit Sender PIN</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Connects directly via P2P WebRTC to begin download</p>
 
           <div class="pin-input-group">
             <input type="text" maxlength="1" class="pin-input-digit" autofocus pattern="[0-9]*" inputmode="numeric">
@@ -137,8 +163,8 @@
             <input type="text" maxlength="1" class="pin-input-digit" pattern="[0-9]*" inputmode="numeric">
           </div>
 
-          <button id="btnConnectReceiver" class="btn-primary" style="padding: 12px 32px; font-size: 1rem; margin-top: 10px;">
-            Connect & Receive 📥
+          <button id="btnConnectReceiver" class="btn-primary" style="padding: 12px 34px; font-size: 1rem; margin-top: 10px;">
+            Connect &amp; Receive
           </button>
         </div>
       </section>
@@ -161,7 +187,7 @@
 
       <!-- RECEIVED FILES LIST -->
       <div id="receivedFilesSection" style="display: none; margin-top: 24px;">
-        <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">
+        <div style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">
           Received Files:
         </div>
         <div id="receivedFilesList"></div>
@@ -170,14 +196,14 @@
 
     <!-- Footer -->
     <footer>
-      xerTransfer &bull; Made with ❤️ by <span class="footer-credit">Mayank Mandrai</span>
+      xerTransfer &bull; Developed by <span class="footer-credit">Mayank Mandrai</span>
     </footer>
   </div>
 
   <!-- Notification Toast -->
   <div id="toast" class="toast">Notice message</div>
 
-  <!-- Scripts -->
+  <!-- Application Logic -->
   <script src="js/p2p.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
