@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xerTransfer - Direct P2P File & Folder Sharing</title>
+  <meta name="description" content="xerTransfer: Fast, secure, zero-limit peer-to-peer file and folder transfer directly via WebRTC. Made by Mayank Mandrai.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Application Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- PeerJS WebRTC Library & QRCode Generator -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <!-- Ambient Glass Glow Elements -->
+  <div class="ambient-glow">
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Header Navigation -->
+    <header class="glass-nav">
+      <div class="logo-container">
+        <div class="logo-icon">⚡</div>
+        <div class="brand-info">
+          <h1>xerTransfer</h1>
+          <span class="creator-tag">By Mayank Mandrai</span>
+        </div>
+      </div>
+
+      <!-- Theme & Glass Controls -->
+      <div class="header-controls">
+        <button id="glassToggleBtn" class="control-btn glass-toggle-active" title="Toggle Glass Effect for Performance">
+          ✨ Glass: <b>ON</b>
+        </button>
+
+        <select id="themeSelect" class="theme-select" title="Switch Color Theme">
+          <option value="dark">🌙 Dark</option>
+          <option value="light">☀️ Light</option>
+          <option value="neon">🔮 Neon</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="glass-card">
+      <!-- Status Badge -->
+      <div class="status-badge" id="statusBadge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Ready to transfer files</span>
+      </div>
+
+      <!-- Mode Switcher (Sender / Receiver Tabs) -->
+      <div class="mode-switch">
+        <button class="tab-btn active" id="senderTab">
+          <span>📤</span> Send Files
+        </button>
+        <button class="tab-btn" id="receiverTab">
+          <span>📥</span> Receive Files
+        </button>
+      </div>
+
+      <!-- SENDER VIEW -->
+      <section id="senderView" class="view-section active">
+        <!-- Drag & Drop Zone -->
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">Drag & Drop Files or Folders here</div>
+          <div class="dropzone-sub">Zero size limits • Direct P2P transfer • No cloud upload</div>
+          
+          <div class="action-btn-group">
+            <button type="button" class="btn-primary" onclick="document.getElementById('filePicker').click()">
+              📄 Choose Files
+            </button>
+            <button type="button" class="btn-secondary" onclick="document.getElementById('folderPicker').click()">
+              📂 Choose Folder
+            </button>
+          </div>
+
+          <!-- Hidden Input Elements -->
+          <input type="file" id="filePicker" multiple style="display: none;">
+          <input type="file" id="folderPicker" webkitdirectory directory multiple style="display: none;">
+        </div>
+
+        <!-- Selected Files Queue -->
+        <div id="filesPreview" class="files-preview" style="display: none;">
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary);">
+            Selected for Transfer:
+          </div>
+          <div id="selectedFilesList"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <button id="btnStartShare" class="btn-primary" style="display: none; padding: 12px 28px; font-size: 1rem;">
+            Generate PIN & QR Code 🚀
+          </button>
+        </div>
+
+        <!-- Pairing Section (PIN + QR) -->
+        <div id="pairingSection" class="pairing-section">
+          <h3 style="font-size: 1.1rem; margin-bottom: 6px;">Receiver ko ye 4-Digit PIN dein:</h3>
+          <p style="font-size: 0.82rem; color: var(--text-secondary);">Ya receiver camera se neeche diya gaya QR scan kare</p>
+          
+          <div class="pin-display-wrapper">
+            <div class="pin-code-container">
+              <div class="pin-digit">-</div>
+              <div class="pin-digit">-</div>
+              <div class="pin-digit">-</div>
+              <div class="pin-digit">-</div>
+            </div>
+
+            <div class="qr-box">
+              <div id="qrContainer"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECEIVER VIEW -->
+      <section id="receiverView" class="view-section">
+        <div class="receiver-form">
+          <h3 style="font-size: 1.2rem; font-weight: 600;">Sender ka 4-Digit PIN daalein</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Direct WebRTC connection banega aur transfer shuru ho jayega</p>
+
+          <div class="pin-input-group">
+            <input type="text" maxlength="1" class="pin-input-digit" autofocus pattern="[0-9]*" inputmode="numeric">
+            <input type="text" maxlength="1" class="pin-input-digit" pattern="[0-9]*" inputmode="numeric">
+            <input type="text" maxlength="1" class="pin-input-digit" pattern="[0-9]*" inputmode="numeric">
+            <input type="text" maxlength="1" class="pin-input-digit" pattern="[0-9]*" inputmode="numeric">
+          </div>
+
+          <button id="btnConnectReceiver" class="btn-primary" style="padding: 12px 32px; font-size: 1rem; margin-top: 10px;">
+            Connect & Receive 📥
+          </button>
+        </div>
+      </section>
+
+      <!-- TRANSFER PROGRESS DISPLAY -->
+      <div id="transferCard" class="transfer-status-container">
+        <div class="progress-header">
+          <span id="transferItemName" style="max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Transferring...</span>
+          <span id="transferPercent">0%</span>
+        </div>
+        <div class="progress-track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div class="transfer-stats">
+          <span id="transferSpeed">Speed: 0 KB/s</span>
+          <span id="transferCount">File 0 of 0</span>
+          <span id="transferEta">ETA: --</span>
+        </div>
+      </div>
+
+      <!-- RECEIVED FILES LIST -->
+      <div id="receivedFilesSection" style="display: none; margin-top: 24px;">
+        <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);">
+          Received Files:
+        </div>
+        <div id="receivedFilesList"></div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      xerTransfer &bull; Made with ❤️ by <span class="footer-credit">Mayank Mandrai</span>
+    </footer>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast">Notice message</div>
+
+  <!-- Scripts -->
+  <script src="js/p2p.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
