@@ -1,0 +1,286 @@
+/**
+ * xerTransfer - UI Controller
+ * Created by: Mayank Mandrai
+ * Handles Themes, Glass Toggle, QR Code, Drag & Drop, and Transfer Progress
+ */
+
+class XerUI {
+  constructor() {
+    this.currentTheme = localStorage.getItem('xer_theme') || 'dark';
+    this.isGlassOn = localStorage.getItem('xer_glass') !== 'false';
+    this.selectedFiles = [];
+
+    this.initElements();
+    this.initThemeAndGlass();
+    this.initPinInputs();
+  }
+
+  initElements() {
+    // Buttons & Controls
+    this.themeSelect = document.getElementById('themeSelect');
+    this.glassToggleBtn = document.getElementById('glassToggleBtn');
+    this.senderTab = document.getElementById('senderTab');
+    this.receiverTab = document.getElementById('receiverTab');
+    this.senderView = document.getElementById('senderView');
+    this.receiverView = document.getElementById('receiverView');
+
+    // Dropzone & Pickers
+    this.dropzone = document.getElementById('dropzone');
+    this.filePicker = document.getElementById('filePicker');
+    this.folderPicker = document.getElementById('folderPicker');
+    this.filesPreview = document.getElementById('filesPreview');
+    this.selectedFilesList = document.getElementById('selectedFilesList');
+    this.btnStartShare = document.getElementById('btnStartShare');
+
+    // Sender Pairing
+    this.pairingSection = document.getElementById('pairingSection');
+    this.pinDigits = document.querySelectorAll('.pin-digit');
+    this.qrContainer = document.getElementById('qrContainer');
+
+    // Receiver Form
+    this.receiverPinInputs = document.querySelectorAll('.pin-input-digit');
+    this.btnConnectReceiver = document.getElementById('btnConnectReceiver');
+
+    // Progress & Status
+    this.statusBadge = document.getElementById('statusBadge');
+    this.statusText = document.getElementById('statusText');
+    this.statusDot = document.getElementById('statusDot');
+    this.transferCard = document.getElementById('transferCard');
+    this.progressFill = document.getElementById('progressFill');
+    this.transferItemName = document.getElementById('transferItemName');
+    this.transferPercent = document.getElementById('transferPercent');
+    this.transferSpeed = document.getElementById('transferSpeed');
+    this.transferEta = document.getElementById('transferEta');
+    this.transferCount = document.getElementById('transferCount');
+    this.receivedFilesSection = document.getElementById('receivedFilesSection');
+    this.receivedFilesList = document.getElementById('receivedFilesList');
+
+    // Toast
+    this.toast = document.getElementById('toast');
+  }
+
+  // --- Themes & Glassmorphism ---
+  initThemeAndGlass() {
+    // 1. Theme setup
+    this.applyTheme(this.currentTheme);
+    if (this.themeSelect) {
+      this.themeSelect.value = this.currentTheme;
+      this.themeSelect.addEventListener('change', (e) => {
+        this.applyTheme(e.target.value);
+      });
+    }
+
+    // 2. Glass Toggle setup
+    this.applyGlass(this.isGlassOn);
+    if (this.glassToggleBtn) {
+      this.glassToggleBtn.addEventListener('click', () => {
+        this.toggleGlass();
+      });
+    }
+  }
+
+  applyTheme(theme) {
+    this.currentTheme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('xer_theme', theme);
+    this.showToast(`Theme changed to ${theme.toUpperCase()}`);
+  }
+
+  applyGlass(isOn) {
+    this.isGlassOn = isOn;
+    if (isOn) {
+      document.body.classList.remove('glass-off');
+      this.glassToggleBtn.innerHTML = '✨ Glass: <b>ON</b>';
+      this.glassToggleBtn.classList.add('glass-toggle-active');
+    } else {
+      document.body.classList.add('glass-off');
+      this.glassToggleBtn.innerHTML = '⚡ Glass: <b>OFF</b> (Solid)';
+      this.glassToggleBtn.classList.remove('glass-toggle-active');
+    }
+    localStorage.setItem('xer_glass', isOn);
+  }
+
+  toggleGlass() {
+    this.applyGlass(!this.isGlassOn);
+    this.showToast(this.isGlassOn ? 'Liquid Glass UI Enabled' : 'Performance Solid Mode Enabled');
+  }
+
+  // --- 4-Digit Receiver Input Auto Advance ---
+  initPinInputs() {
+    this.receiverPinInputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (val.length === 1 && idx < this.receiverPinInputs.length - 1) {
+          this.receiverPinInputs[idx + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+          this.receiverPinInputs[idx - 1].focus();
+        }
+      });
+    });
+  }
+
+  getReceiverPin() {
+    return Array.from(this.receiverPinInputs).map(input => input.value.trim()).join('');
+  }
+
+  setReceiverPin(pin) {
+    if (!pin || pin.length !== 4) return;
+    this.receiverPinInputs.forEach((input, i) => {
+      input.value = pin[i] || '';
+    });
+  }
+
+  // --- Display 4-digit PIN for Sender ---
+  displaySenderPin(pin) {
+    if (!pin) return;
+    const digits = pin.toString().split('');
+    this.pinDigits.forEach((el, index) => {
+      el.textContent = digits[index] || '-';
+    });
+    this.pairingSection.classList.add('active');
+  }
+
+  // --- Generate QR Code ---
+  renderQRCode(text) {
+    if (!this.qrContainer) return;
+    this.qrContainer.innerHTML = '';
+
+    // If QRCode library is available
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(this.qrContainer, {
+        text: text,
+        width: 170,
+        height: 170,
+        colorDark: '#0f172a',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } else {
+      // Fallback API QR Image
+      const qrImg = document.createElement('img');
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${encodeURIComponent(text)}`;
+      qrImg.alt = 'Scan QR Code';
+      this.qrContainer.appendChild(qrImg);
+    }
+  }
+
+  // --- Selected Files Management ---
+  renderFilesList(files) {
+    this.selectedFiles = files;
+    this.selectedFilesList.innerHTML = '';
+
+    if (files.length === 0) {
+      this.filesPreview.style.display = 'none';
+      this.btnStartShare.style.display = 'none';
+      return;
+    }
+
+    this.filesPreview.style.display = 'block';
+    this.btnStartShare.style.display = 'inline-flex';
+
+    files.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      
+      const pathLabel = file.webkitRelativePath || file.name;
+      item.innerHTML = `
+        <div class="file-meta">
+          <span>📁</span>
+          <div>
+            <div class="file-name" title="${pathLabel}">${pathLabel}</div>
+            <div class="file-size">${this.formatBytes(file.size)}</div>
+          </div>
+        </div>
+        <button class="remove-file-btn" data-index="${index}" title="Remove">✕</button>
+      `;
+      this.selectedFilesList.appendChild(item);
+    });
+
+    // Remove buttons
+    this.selectedFilesList.querySelectorAll('.remove-file-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.getAttribute('data-index'));
+        this.selectedFiles.splice(idx, 1);
+        this.renderFilesList(this.selectedFiles);
+      });
+    });
+  }
+
+  // --- Transfer Progress Display ---
+  updateProgress(data) {
+    this.transferCard.classList.add('active');
+    this.progressFill.style.width = `${data.percent}%`;
+    this.transferItemName.textContent = data.name;
+    this.transferPercent.textContent = `${data.percent}%`;
+    this.transferSpeed.textContent = `Speed: ${data.speed}`;
+    this.transferEta.textContent = `ETA: ${data.eta}`;
+    this.transferCount.textContent = `File ${data.currentFile} of ${data.totalFiles}`;
+  }
+
+  // --- Add Received File to List ---
+  addReceivedFile(meta, blob) {
+    this.receivedFilesSection.style.display = 'block';
+    const item = document.createElement('div');
+    item.className = 'file-item';
+
+    const downloadUrl = URL.createObjectURL(blob);
+    const fileName = meta.relativePath || meta.name;
+
+    item.innerHTML = `
+      <div class="file-meta">
+        <span>✅</span>
+        <div>
+          <div class="file-name" title="${fileName}">${fileName}</div>
+          <div class="file-size">${this.formatBytes(meta.size)}</div>
+        </div>
+      </div>
+      <a href="${downloadUrl}" download="${meta.name}" class="btn-primary" style="padding: 6px 14px; font-size: 0.8rem; text-decoration: none;">
+        Save ⬇
+      </a>
+    `;
+
+    this.receivedFilesList.appendChild(item);
+
+    // Trigger auto-download if single file or direct action
+    const autoLink = document.createElement('a');
+    autoLink.href = downloadUrl;
+    autoLink.download = meta.name;
+    document.body.appendChild(autoLink);
+    autoLink.click();
+    document.body.removeChild(autoLink);
+
+    this.showToast(`Received: ${meta.name}`);
+  }
+
+  // --- Status Badge ---
+  updateStatus(text, dotClass = '') {
+    this.statusText.textContent = text;
+    this.statusDot.className = 'status-dot ' + dotClass;
+  }
+
+  // --- Toast Notification ---
+  showToast(message) {
+    if (!this.toast) return;
+    this.toast.textContent = message;
+    this.toast.classList.add('show');
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      this.toast.classList.remove('show');
+    }, 3200);
+  }
+
+  // --- Utility Formatters ---
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+}
+
+window.XerUI = XerUI;
